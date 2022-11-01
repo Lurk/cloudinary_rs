@@ -27,7 +27,7 @@ impl Cloudinary {
     pub async fn upload_image(
         self,
         src: String,
-        options: UploadOptions,
+        options: UploadOptions<'_>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let client = Client::new();
         let file = prepare_file(&src).await?;
@@ -45,7 +45,7 @@ impl Cloudinary {
     }
 
     fn build_form_data(&self, options: UploadOptions) -> Form {
-        let mut map = options.to_map();
+        let mut map = options.get_map();
         let resource_type = map.remove("resource_type");
         let timestamp = Utc::now().timestamp_millis().to_string();
 

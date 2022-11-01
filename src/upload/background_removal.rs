@@ -1,6 +1,6 @@
 use core::fmt;
 
-#[derive(Debug)]
+#[derive(Debug,Clone, PartialEq)]
 pub enum BackgroundRemoval {
     CloudinaryAi,
     Pixelz,
