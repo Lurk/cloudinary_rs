@@ -23,26 +23,6 @@ pub struct UploadOptions<'entry_key_lifetime> {
     inner: BTreeMap<&'entry_key_lifetime str, DataType>,
 }
 
-macro_rules! add_field {
-    ($struct_name:ident, $field:expr, $type:ty, $data_type:expr) => {
-        paste! {
-            impl $struct_name<'_> {
-                pub fn [<set_ $field>](&mut self,  value: $type )->&Self{
-                    self.inner.insert($field, $data_type(value));
-                    self
-                }
-
-                pub fn [<get_ $field>](self)->Option<$type>{
-                    if let Some($data_type(value)) = self.inner.get($field) {
-                        return Some(value.clone());
-                    }
-                    None
-                }
-            }
-        }
-    };
-}
-
 impl UploadOptions<'_> {
     pub fn new() -> Self {
         Self {
@@ -166,6 +146,27 @@ impl Default for UploadOptions<'_> {
         Self::new()
     }
 }
+
+macro_rules! add_field {
+    ($struct_name:ident, $field:expr, $type:ty, $data_type:expr) => {
+        paste! {
+            impl $struct_name<'_> {
+                pub fn [<set_ $field>](mut self,  value: $type )->Self{
+                    self.inner.insert($field, $data_type(value));
+                    self
+                }
+
+                pub fn [<get_ $field>](self)->Option<$type>{
+                    if let Some($data_type(value)) = self.inner.get($field) {
+                        return Some(value.clone());
+                    }
+                    None
+                }
+            }
+        }
+    };
+}
+
 add_field!(UploadOptions, "folder", String, DataType::String);
 add_field!(UploadOptions, "upload_preset", String, DataType::String);
 add_field!(UploadOptions, "type", DeliveryType, DataType::DeliveryType);
@@ -288,14 +289,12 @@ mod tests {
 
     #[test]
     fn folder() {
-        let mut params = UploadOptions::new();
-        params.set_folder("folder".to_string());
+        let params = UploadOptions::new().set_folder("folder".to_string());
         assert_eq!(params.get_folder(), Some("folder".to_string()));
     }
     #[test]
     fn upload_preset() {
-        let mut params = UploadOptions::new();
-        params.set_upload_preset("upload_preset".to_string());
+        let params = UploadOptions::new().set_upload_preset("upload_preset".to_string());
         assert_eq!(
             params.get_upload_preset(),
             Some("upload_preset".to_string())
@@ -303,26 +302,22 @@ mod tests {
     }
     #[test]
     fn r#type() {
-        let mut params = UploadOptions::new();
-        params.set_type(DeliveryType::Private);
+        let params = UploadOptions::new().set_type(DeliveryType::Private);
         assert_eq!(params.get_type(), Some(DeliveryType::Private));
     }
     #[test]
     fn access_mode() {
-        let mut params = UploadOptions::new();
-        params.set_access_mode(AccessModes::Public);
+        let params = UploadOptions::new().set_access_mode(AccessModes::Public);
         assert_eq!(params.get_access_mode(), Some(AccessModes::Public));
     }
     #[test]
     fn public_id() {
-        let mut params = UploadOptions::new();
-        params.set_public_id("public_id".to_string());
+        let params = UploadOptions::new().set_public_id("public_id".to_string());
         assert_eq!(params.get_public_id(), Some("public_id".to_string()));
     }
     #[test]
     fn use_filename() {
-        let mut params = UploadOptions::new();
-        params.set_use_filename(false);
+        let params = UploadOptions::new().set_use_filename(false);
         assert_eq!(params.get_use_filename(), Some(false));
     }
     #[test]

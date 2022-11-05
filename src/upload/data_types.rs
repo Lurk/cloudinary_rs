@@ -38,7 +38,7 @@ impl fmt::Display for DataType {
             DataType::DeliveryType(value) => write!(f, "{}", value),
             DataType::AccessModes(value) => write!(f, "{}", value),
             DataType::ResourceTypes(value) => write!(f, "{}", value),
-            DataType::HasSet(value) => write!(f, "['{}']", value.iter().join("', '")),
+            DataType::HasSet(value) => write!(f, "{}", value.iter().join(",")),
             DataType::HashMap(value) => write!(
                 f,
                 "{}",
