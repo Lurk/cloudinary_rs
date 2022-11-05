@@ -61,7 +61,11 @@ impl fmt::Display for DataType {
             DataType::BackgroundRemoval(value) => write!(f, "{}", value),
             DataType::RawConvert(value) => write!(f, "{}", value),
             DataType::VecOfString(value) => write!(f, "{}", value.iter().join(",")),
-            DataType::AllowedHeaders(value) => write!(f, "{}", value.iter().map(|(k, v)| format!("{k}: {v}")).join("\n")),
+            DataType::AllowedHeaders(value) => write!(
+                f,
+                "{}",
+                value.iter().map(|(k, v)| format!("{k}: {v}")).join("\n")
+            ),
         }
     }
 }
