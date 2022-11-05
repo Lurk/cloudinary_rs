@@ -32,7 +32,7 @@ impl Cloudinary {
         let client = Client::new();
         let file = prepare_file(&src).await?;
         let multipart = self.build_form_data(options).part("file", file);
-        let res = client
+        let _res = client
             .post(format!(
                 "https://api.cloudinary.com/v1_1/{}/image/upload",
                 self.cloud_name

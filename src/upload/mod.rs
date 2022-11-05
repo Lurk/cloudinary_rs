@@ -148,7 +148,7 @@ impl UploadOptions<'_> {
 
     pub fn get_auto_tagging(&self) -> Option<f32> {
         if let Some(DataType::Float(auto_tagging)) = self.inner.get("auto_tagging") {
-            return Some(auto_tagging.clone());
+            return Some(*auto_tagging);
         }
         None
     }
@@ -158,6 +158,12 @@ impl UploadOptions<'_> {
             acc.insert(k.to_string(), v.to_string());
             acc
         })
+    }
+}
+
+impl Default for UploadOptions<'_> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 add_field!(UploadOptions, "folder", String, DataType::String);
@@ -340,7 +346,7 @@ mod tests {
             params.get_context(&"foo".to_string()),
             Some("context".to_string())
         );
-        params = params.remove_context(&"foo".to_string());
+        params = params.remove_context("foo");
         assert_eq!(params.get_context(&"foo".to_string()), None);
     }
     #[test]
@@ -351,7 +357,7 @@ mod tests {
             params.get_metadata(&"foo".to_string()),
             Some("metadata".to_string())
         );
-        params = params.remove_metadata(&"foo".to_string());
+        params = params.remove_metadata("foo");
         assert_eq!(params.get_metadata(&"foo".to_string()), None);
     }
     #[test]
