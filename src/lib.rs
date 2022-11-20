@@ -85,9 +85,15 @@ impl Cloudinary {
                     .send()
                     .await;
                 match response {
-                    Ok(r) => match r.json::<Response>().await {
-                        Ok(val) => val,
-                        Err(e) => panic!("Uh oh! Something unexpected happened: {:?}", e),
+                    Ok(r) => match r.text().await {
+                        Ok(text) => match serde_json::from_str(&text) {
+                            Ok(json) => json,
+                            Err(e) => panic!(
+                                "Response decoding error: {:?}\nwhile decoding: {:?}",
+                                e, text
+                            ),
+                        },
+                        Err(e) => panic!("error while getting respose as text: {:?}", e),
                     },
                     Err(e) => panic!("Uh oh! Something unexpected happened: {:?}", e),
                 }
