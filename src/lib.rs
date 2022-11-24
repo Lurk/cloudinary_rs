@@ -1,5 +1,6 @@
 pub mod upload;
 
+use anyhow::{Context, Result};
 use chrono::Utc;
 use itertools::Itertools;
 use reqwest::multipart::{Form, Part};
@@ -32,35 +33,25 @@ impl Cloudinary {
     /// let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
     /// let result = cloudinary.upload_image("./image.jpg".to_string(), &options);
     /// ```
-    pub async fn upload_image(&self, src: String, options: &UploadOptions<'_>) -> UploadResult {
+    pub async fn upload_image(
+        &self,
+        src: String,
+        options: &UploadOptions<'_>,
+    ) -> Result<UploadResult> {
         let client = Client::new();
-        match prepare_file(&src).await {
-            Ok(file) => {
-                let multipart = self.build_form_data(options).part("file", file);
-                let response = client
-                    .post(format!(
-                        "https://api.cloudinary.com/v1_1/{}/image/upload",
-                        self.cloud_name
-                    ))
-                    .multipart(multipart)
-                    .send()
-                    .await;
-                match response {
-                    Ok(r) => match r.text().await {
-                        Ok(text) => match serde_json::from_str(&text) {
-                            Ok(json) => json,
-                            Err(e) => panic!(
-                                "Response decoding error: {:?}\nwhile decoding: {:?}",
-                                e, text
-                            ),
-                        },
-                        Err(e) => panic!("error while getting respose as text: {:?}", e),
-                    },
-                    Err(e) => panic!("Uh oh! Something unexpected happened: {:?}", e),
-                }
-            }
-            Err(err) => panic!("Uh oh! Something unexpected happened: {:?}", err),
-        }
+        let file = prepare_file(&src).await?;
+        let multipart = self.build_form_data(options).part("file", file);
+        let response = client
+            .post(format!(
+                "https://api.cloudinary.com/v1_1/{}/image/upload",
+                self.cloud_name
+            ))
+            .multipart(multipart)
+            .send()
+            .await?;
+        let text = response.text().await?;
+        let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
+        Ok(json)
     }
 
     fn build_form_data(&self, options: &UploadOptions) -> Form {
@@ -93,7 +84,7 @@ impl Cloudinary {
     }
 }
 
-async fn prepare_file(src: &str) -> Result<Part, Box<dyn std::error::Error>> {
+async fn prepare_file(src: &str) -> Result<Part> {
     let file = File::open(&src).await?;
 
     let filename = Path::new(src)
