@@ -51,6 +51,6 @@ pub struct Response {
     pub secure_url: String,
     pub folder: String,
     pub overwritten: Option<bool>,
-    pub original_filename: String,
+    pub original_extension: String,
     pub api_key: String,
 }
