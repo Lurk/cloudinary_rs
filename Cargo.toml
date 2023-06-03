@@ -2,7 +2,7 @@
 name = "cloudinary"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.57.0" # Minimum Rust version required by base64 package
+rust-version = "1.58.0" # Minimum Rust version required by string formatting macros
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
