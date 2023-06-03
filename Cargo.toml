@@ -2,7 +2,7 @@
 name = "cloudinary"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.58.0" # Minimum Rust version required by string formatting macros
+rust-version = "1.63.0" # due to openssl = { version = "0.10", features = ["vendored"] }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
