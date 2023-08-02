@@ -25,7 +25,7 @@ pub struct Message {
 #[derive(Clone, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum UploadResult {
-    Succes(Box<Response>),
+    Success(Box<Response>),
     Error(Box<Error>),
 }
 
