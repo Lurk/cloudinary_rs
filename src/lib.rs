@@ -38,19 +38,25 @@ impl Cloudinary {
         src: String,
         options: &UploadOptions<'_>,
     ) -> Result<UploadResult> {
-        let client = Client::new();
         let file = prepare_file(&src).await?;
         let multipart = self.build_form_data(options).part("file", file);
-        let response = client
-            .post(format!(
-                "https://api.cloudinary.com/v1_1/{}/image/upload",
-                self.cloud_name
-            ))
-            .multipart(multipart)
-            .send()
-            .await?;
-        let text = response.text().await?;
-        let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
+        let json = self.make_request(multipart).await?;
+        Ok(json)
+    }
+
+    /**
+     Handles image upload from url
+     
+      ```rust
+      use cloudinary::{Cloudinary, upload::UploadOptions};
+      let options = UploadOptions::new().set_public_id("gojo.jpg".to_string());
+      let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string());
+      let result = cloudinary.upload_image_from_url("https://some.com/assets/satoru_gojo.jpg".to_string(), &options);
+      ```
+     */
+    pub async fn upload_image_from_url(&self, src: String, options: &UploadOptions<'_>) -> Result<UploadResult> {
+        let form = self.build_form_data(options).text("file", src);
+        let json = self.make_request(form).await?;
         Ok(json)
     }
 
@@ -82,6 +88,21 @@ impl Cloudinary {
         }
         form
     }
+
+    async fn make_request(&self, form: Form) -> Result<UploadResult> {
+        let client = Client::new();
+        let response = client
+            .post(format!(
+                "https://api.cloudinary.com/v1_1/{}/image/upload",
+                self.cloud_name
+            ))
+            .multipart(form)
+            .send()
+            .await?;
+        let text = response.text().await?;
+        let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
+        Ok(json)
+    }
 }
 
 async fn prepare_file(src: &str) -> Result<Part> {
@@ -99,3 +120,7 @@ async fn prepare_file(src: &str) -> Result<Part> {
         .file_name(filename)
         .mime_str("image/*")?)
 }
+
+#[cfg(test)]
+mod tests;
+
