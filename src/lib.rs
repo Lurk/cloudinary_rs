@@ -4,9 +4,9 @@ use anyhow::{Context, Result};
 use chrono::Utc;
 use itertools::Itertools;
 use reqwest::multipart::{Form, Part};
-use reqwest::{Body, Client};
+use reqwest::{Body, Client, Url};
 use sha1::{Digest, Sha1};
-use std::path::Path;
+use std::path::PathBuf;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 use upload::{result::UploadResult, UploadOptions};
@@ -15,6 +15,11 @@ pub struct Cloudinary {
     cloud_name: String,
     api_key: String,
     api_secret: String,
+}
+
+pub enum Source {
+    Path(PathBuf),
+    Url(Url),
 }
 
 impl Cloudinary {
@@ -28,18 +33,22 @@ impl Cloudinary {
 
     /// uploads an image
     /// ```rust
-    /// use cloudinary::{Cloudinary, upload::UploadOptions};
+    /// use cloudinary::{Source, Cloudinary};
+    /// use cloudinary::upload::{UploadOptions};
     /// let options = UploadOptions::new().set_public_id("file.jpg".to_string());
     /// let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
-    /// let result = cloudinary.upload_image("./image.jpg".to_string(), &options);
+    /// let result = cloudinary.upload_image(Source::Path("./image.jpg".into()), &options);
     /// ```
     pub async fn upload_image(
         &self,
-        src: String,
+        src: Source,
         options: &UploadOptions<'_>,
     ) -> Result<UploadResult> {
         let client = Client::new();
-        let file = prepare_file(&src).await?;
+        let file = match src {
+            Source::Path(path) => prepare_file(&path).await?,
+            Source::Url(url) => Part::text(url.as_str().to_string()),
+        };
         let multipart = self.build_form_data(options).part("file", file);
         let response = client
             .post(format!(
@@ -84,14 +93,10 @@ impl Cloudinary {
     }
 }
 
-async fn prepare_file(src: &str) -> Result<Part> {
+async fn prepare_file(src: &PathBuf) -> Result<Part> {
     let file = File::open(&src).await?;
 
-    let filename = Path::new(src)
-        .file_name()
-        .unwrap()
-        .to_string_lossy()
-        .into_owned();
+    let filename = src.file_name().unwrap().to_string_lossy().into_owned();
 
     let stream = FramedRead::new(file, BytesCodec::new());
     let file_body = Body::wrap_stream(stream);
@@ -99,3 +104,6 @@ async fn prepare_file(src: &str) -> Result<Part> {
         .file_name(filename)
         .mime_str("image/*")?)
 }
+
+#[cfg(test)]
+mod tests;
