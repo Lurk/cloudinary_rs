@@ -11,6 +11,8 @@ concurrency:
 name: test
 jobs:
   required:
+    environment:
+      name: test
     runs-on: ubuntu-latest
     name: ubuntu / ${{ matrix.toolchain }}
     strategy:
