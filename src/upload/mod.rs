@@ -9,7 +9,6 @@ mod resource_type;
 mod responsive_breakpoints;
 pub mod result;
 
-use paste::paste;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use self::{
@@ -25,12 +24,55 @@ pub struct UploadOptions<'entry_key_lifetime> {
     inner: BTreeMap<&'entry_key_lifetime str, DataType>,
 }
 
-impl UploadOptions<'_> {
+impl<'entry_key_lifetime> UploadOptions<'entry_key_lifetime> {
     pub fn new() -> Self {
         Self {
             inner: BTreeMap::new(),
         }
     }
+
+    fn get_string(&self, key: &str) -> Option<String> {
+        if let Some(DataType::String(value)) = self.inner.get(key) {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    fn get_bool(&self, key: &str) -> Option<bool> {
+        if let Some(DataType::Boolean(value)) = self.inner.get(key) {
+            return Some(*value);
+        }
+        None
+    }
+
+    fn add_to_hashmap(
+        mut self,
+        hashmap_name: &'entry_key_lifetime str,
+        key: String,
+        value: String,
+    ) -> Self {
+        if let Some(DataType::HashMap(context)) = self.inner.get_mut(hashmap_name) {
+            context.insert(key, value);
+        } else {
+            self.inner.insert(
+                hashmap_name,
+                DataType::HashMap(HashMap::from([(key, value)])),
+            );
+        }
+
+        self
+    }
+
+    fn remove_from_hashmap(mut self, hashmap: &str, key: &str) -> Self {
+        if let Some(DataType::HashMap(context)) = self.inner.get_mut(hashmap) {
+            context.remove(key);
+            if context.is_empty() {
+                self.inner.remove(hashmap);
+            }
+        }
+        self
+    }
+
     pub fn add_tags(mut self, tags: &[String]) -> Self {
         if let Some(DataType::HasSet(inner_tags)) = self.inner.get_mut("tags") {
             inner_tags.extend(tags.iter().cloned());
@@ -62,25 +104,12 @@ impl UploadOptions<'_> {
         None
     }
 
-    pub fn add_context(mut self, key: String, value: String) -> Self {
-        if let Some(DataType::HashMap(context)) = self.inner.get_mut("context") {
-            context.insert(key, value);
-        } else {
-            self.inner
-                .insert("context", DataType::HashMap(HashMap::from([(key, value)])));
-        }
-
-        self
+    pub fn add_context(self, key: String, value: String) -> Self {
+        self.add_to_hashmap("context", key, value)
     }
 
-    pub fn remove_context(mut self, key: &str) -> Self {
-        if let Some(DataType::HashMap(context)) = self.inner.get_mut("context") {
-            context.remove(key);
-            if context.is_empty() {
-                self.inner.remove("context");
-            }
-        }
-        self
+    pub fn remove_context(self, key: &str) -> Self {
+        self.remove_from_hashmap("context", key)
     }
 
     pub fn get_context(&self, key: &String) -> Option<String> {
@@ -90,25 +119,12 @@ impl UploadOptions<'_> {
         None
     }
 
-    pub fn add_metadata(mut self, key: String, value: String) -> Self {
-        if let Some(DataType::HashMap(metadata)) = self.inner.get_mut("metadata") {
-            metadata.insert(key, value);
-        } else {
-            self.inner
-                .insert("metadata", DataType::HashMap(HashMap::from([(key, value)])));
-        }
-
-        self
+    pub fn add_metadata(self, key: String, value: String) -> Self {
+        self.add_to_hashmap("metadata", key, value)
     }
 
-    pub fn remove_metadata(mut self, key: &str) -> Self {
-        if let Some(DataType::HashMap(metadata)) = self.inner.get_mut("metadata") {
-            metadata.remove(key);
-            if metadata.is_empty() {
-                self.inner.remove("metadata");
-            }
-        }
-        self
+    pub fn remove_metadata(self, key: &str) -> Self {
+        self.remove_from_hashmap("metadata", key)
     }
 
     pub fn get_metadata(&self, key: &String) -> Option<String> {
@@ -141,6 +157,422 @@ impl UploadOptions<'_> {
             acc
         })
     }
+
+    pub fn get_folder(&self) -> Option<String> {
+        self.get_string("folder")
+    }
+
+    pub fn set_folder(mut self, value: String) -> Self {
+        self.inner.insert("folder", DataType::String(value));
+        self
+    }
+
+    pub fn get_upload_preset(&self) -> Option<String> {
+        self.get_string("upload_preset")
+    }
+
+    pub fn set_upload_preset(mut self, value: String) -> Self {
+        self.inner.insert("upload_preset", DataType::String(value));
+        self
+    }
+
+    pub fn get_type(&self) -> Option<DeliveryType> {
+        if let Some(DataType::DeliveryType(value)) = self.inner.get("type") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_type(mut self, value: DeliveryType) -> Self {
+        self.inner.insert("type", DataType::DeliveryType(value));
+        self
+    }
+
+    pub fn get_access_mode(&self) -> Option<AccessModes> {
+        if let Some(DataType::AccessModes(value)) = self.inner.get("access_mode") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_access_mode(mut self, value: AccessModes) -> Self {
+        self.inner
+            .insert("access_mode", DataType::AccessModes(value));
+        self
+    }
+
+    pub fn get_public_id(&self) -> Option<String> {
+        self.get_string("public_id")
+    }
+
+    pub fn set_public_id(mut self, value: String) -> Self {
+        self.inner.insert("public_id", DataType::String(value));
+        self
+    }
+
+    pub fn get_use_filename(&self) -> Option<bool> {
+        self.get_bool("use_filename")
+    }
+
+    pub fn set_use_filename(mut self, value: bool) -> Self {
+        self.inner.insert("use_filename", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_filename_override(&self) -> Option<String> {
+        self.get_string("filename_override")
+    }
+
+    pub fn set_filename_override(mut self, value: String) -> Self {
+        self.inner
+            .insert("filename_override", DataType::String(value));
+        self
+    }
+
+    pub fn get_resource_type(&self) -> Option<ResourceTypes> {
+        if let Some(DataType::ResourceTypes(value)) = self.inner.get("resource_type") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_resource_type(mut self, value: ResourceTypes) -> Self {
+        self.inner
+            .insert("resource_type", DataType::ResourceTypes(value));
+        self
+    }
+
+    pub fn get_discard_original_filename(&self) -> Option<bool> {
+        self.get_bool("discard_original_filename")
+    }
+
+    pub fn set_discard_original_filename(mut self, value: bool) -> Self {
+        self.inner
+            .insert("discard_original_filename", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_overwrite(&self) -> Option<bool> {
+        self.get_bool("overwrite")
+    }
+
+    pub fn set_overwrite(mut self, value: bool) -> Self {
+        self.inner.insert("overwrite", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_colors(&self) -> Option<bool> {
+        self.get_bool("colors")
+    }
+
+    pub fn set_colors(mut self, value: bool) -> Self {
+        self.inner.insert("colors", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_faces(&self) -> Option<bool> {
+        self.get_bool("faces")
+    }
+
+    pub fn set_faces(mut self, value: bool) -> Self {
+        self.inner.insert("faces", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_quality_analysis(&self) -> Option<bool> {
+        self.get_bool("quality_analysis")
+    }
+
+    pub fn set_quality_analysis(mut self, value: bool) -> Self {
+        self.inner
+            .insert("quality_analysis", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_accessibility_analysis(&self) -> Option<bool> {
+        self.get_bool("accessibility_analysis")
+    }
+
+    pub fn set_accessibility_analysis(mut self, value: bool) -> Self {
+        self.inner
+            .insert("accessibility_analysis", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_cinemagraph_analysis(&self) -> Option<bool> {
+        self.get_bool("cinemagraph_analysis")
+    }
+
+    pub fn set_cinemagraph_analysis(mut self, value: bool) -> Self {
+        self.inner
+            .insert("cinemagraph_analysis", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_image_metadata(&self) -> Option<bool> {
+        self.get_bool("image_metadata")
+    }
+
+    pub fn set_image_metadata(mut self, value: bool) -> Self {
+        self.inner
+            .insert("image_metadata", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_phash(&self) -> Option<bool> {
+        self.get_bool("phash")
+    }
+
+    pub fn set_phash(mut self, value: bool) -> Self {
+        self.inner.insert("phash", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_responsive_breakpoints(&self) -> Option<Vec<ResponsiveBreakpoints>> {
+        if let Some(DataType::ResponsiveBreakpoints(value)) =
+            self.inner.get("responsive_breakpoints")
+        {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_responsive_breakpoints(mut self, value: Vec<ResponsiveBreakpoints>) -> Self {
+        self.inner.insert(
+            "responsive_breakpoints",
+            DataType::ResponsiveBreakpoints(value),
+        );
+        self
+    }
+
+    pub fn get_categorization(&self) -> Option<Vec<Categorizations>> {
+        if let Some(DataType::Categorization(value)) = self.inner.get("categorization") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_categorization(mut self, value: Vec<Categorizations>) -> Self {
+        self.inner
+            .insert("categorization", DataType::Categorization(value));
+        self
+    }
+
+    pub fn get_detection(&self) -> Option<String> {
+        self.get_string("detection")
+    }
+
+    pub fn set_detection(mut self, value: String) -> Self {
+        self.inner.insert("detection", DataType::String(value));
+        self
+    }
+
+    pub fn get_ocr(&self) -> Option<String> {
+        self.get_string("ocr")
+    }
+
+    pub fn set_ocr(mut self, value: String) -> Self {
+        self.inner.insert("ocr", DataType::String(value));
+        self
+    }
+
+    pub fn get_eager(&self) -> Option<String> {
+        self.get_string("eager")
+    }
+
+    pub fn set_eager(mut self, value: String) -> Self {
+        self.inner.insert("eager", DataType::String(value));
+        self
+    }
+
+    pub fn get_eager_async(&self) -> Option<bool> {
+        self.get_bool("eager_async")
+    }
+
+    pub fn set_eager_async(mut self, value: bool) -> Self {
+        self.inner.insert("eager_async", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_eager_notification_url(&self) -> Option<String> {
+        self.get_string("eager_notification_url")
+    }
+
+    pub fn set_eager_notification_url(mut self, value: String) -> Self {
+        self.inner
+            .insert("eager_notification_url", DataType::String(value));
+        self
+    }
+
+    pub fn get_transformation(&self) -> Option<String> {
+        self.get_string("transformation")
+    }
+
+    pub fn set_transformation(mut self, value: String) -> Self {
+        self.inner.insert("transformation", DataType::String(value));
+        self
+    }
+
+    pub fn get_format(&self) -> Option<String> {
+        self.get_string("format")
+    }
+
+    pub fn set_format(mut self, value: String) -> Self {
+        self.inner.insert("format", DataType::String(value));
+        self
+    }
+
+    pub fn get_custom_coordinates(&self) -> Option<Coordinates> {
+        if let Some(DataType::Coordinates(value)) = self.inner.get("custom_coordinates") {
+            return Some(*value);
+        }
+        None
+    }
+
+    pub fn set_custom_coordinates(mut self, value: Coordinates) -> Self {
+        self.inner
+            .insert("custom_coordinates", DataType::Coordinates(value));
+        self
+    }
+
+    pub fn get_face_coordinates(&self) -> Option<Vec<Coordinates>> {
+        if let Some(DataType::FaceCoordinates(value)) = self.inner.get("face_coordinates") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_face_coordinates(mut self, value: Vec<Coordinates>) -> Self {
+        self.inner
+            .insert("face_coordinates", DataType::FaceCoordinates(value));
+        self
+    }
+
+    pub fn get_background_removal(&self) -> Option<BackgroundRemoval> {
+        if let Some(DataType::BackgroundRemoval(value)) = self.inner.get("background_removal") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_background_removal(mut self, value: BackgroundRemoval) -> Self {
+        self.inner
+            .insert("background_removal", DataType::BackgroundRemoval(value));
+        self
+    }
+
+    pub fn get_raw_convert(&self) -> Option<RawConvert> {
+        if let Some(DataType::RawConvert(value)) = self.inner.get("raw_convert") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_raw_convert(mut self, value: RawConvert) -> Self {
+        self.inner
+            .insert("raw_convert", DataType::RawConvert(value));
+        self
+    }
+
+    pub fn get_allowed_formats(&self) -> Option<Vec<String>> {
+        if let Some(DataType::VecOfString(value)) = self.inner.get("allowed_formats") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_allowed_formats(mut self, value: Vec<String>) -> Self {
+        self.inner
+            .insert("allowed_formats", DataType::VecOfString(value));
+        self
+    }
+
+    pub fn get_async(&self) -> Option<bool> {
+        self.get_bool("async")
+    }
+
+    pub fn set_async(mut self, value: bool) -> Self {
+        self.inner.insert("async", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_backup(&self) -> Option<bool> {
+        self.get_bool("backup")
+    }
+
+    pub fn set_backup(mut self, value: bool) -> Self {
+        self.inner.insert("backup", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_callback(&self) -> Option<String> {
+        self.get_string("callback")
+    }
+
+    pub fn set_callback(mut self, value: String) -> Self {
+        self.inner.insert("callback", DataType::String(value));
+        self
+    }
+
+    pub fn get_eval(&self) -> Option<String> {
+        self.get_string("eval")
+    }
+
+    pub fn set_eval(mut self, value: String) -> Self {
+        self.inner.insert("eval", DataType::String(value));
+        self
+    }
+
+    pub fn get_headers(&self) -> Option<HashMap<AllowedHeaders, String>> {
+        if let Some(DataType::AllowedHeaders(value)) = self.inner.get("headers") {
+            return Some(value.clone());
+        }
+        None
+    }
+
+    pub fn set_headers(mut self, value: HashMap<AllowedHeaders, String>) -> Self {
+        self.inner
+            .insert("headers", DataType::AllowedHeaders(value));
+        self
+    }
+
+    pub fn get_invalidate(&self) -> Option<bool> {
+        self.get_bool("invalidate")
+    }
+
+    pub fn set_invalidate(mut self, value: bool) -> Self {
+        self.inner.insert("invalidate", DataType::Boolean(value));
+        self
+    }
+
+    pub fn get_notification_url(&self) -> Option<String> {
+        self.get_string("notification_url")
+    }
+
+    pub fn set_notification_url(mut self, value: String) -> Self {
+        self.inner
+            .insert("notification_url", DataType::String(value));
+        self
+    }
+
+    pub fn get_proxy(&self) -> Option<String> {
+        self.get_string("proxy")
+    }
+
+    pub fn set_proxy(mut self, value: String) -> Self {
+        self.inner.insert("proxy", DataType::String(value));
+        self
+    }
+
+    pub fn get_return_delete_token(&self) -> Option<bool> {
+        self.get_bool("return_delete_token")
+    }
+
+    pub fn set_return_delete_token(mut self, value: bool) -> Self {
+        self.inner
+            .insert("return_delete_token", DataType::Boolean(value));
+        self
+    }
 }
 
 impl Default for UploadOptions<'_> {
@@ -148,137 +580,6 @@ impl Default for UploadOptions<'_> {
         Self::new()
     }
 }
-
-macro_rules! add_field {
-    ($struct_name:ident, $field:expr, $type:ty, $data_type:expr) => {
-        paste! {
-            impl $struct_name<'_> {
-                pub fn [<set_ $field>](mut self,  value: $type )->Self{
-                    self.inner.insert($field, $data_type(value));
-                    self
-                }
-
-                pub fn [<get_ $field>](self)->Option<$type>{
-                    if let Some($data_type(value)) = self.inner.get($field) {
-                        return Some(value.clone());
-                    }
-                    None
-                }
-            }
-        }
-    };
-}
-
-add_field!(UploadOptions, "folder", String, DataType::String);
-add_field!(UploadOptions, "upload_preset", String, DataType::String);
-add_field!(UploadOptions, "type", DeliveryType, DataType::DeliveryType);
-add_field!(
-    UploadOptions,
-    "access_mode",
-    AccessModes,
-    DataType::AccessModes
-);
-add_field!(UploadOptions, "public_id", String, DataType::String);
-add_field!(UploadOptions, "use_filename", bool, DataType::Boolean);
-add_field!(UploadOptions, "filename_override", String, DataType::String);
-add_field!(
-    UploadOptions,
-    "resource_type",
-    ResourceTypes,
-    DataType::ResourceTypes
-);
-add_field!(
-    UploadOptions,
-    "discard_original_filename",
-    bool,
-    DataType::Boolean
-);
-add_field!(UploadOptions, "overwrite", bool, DataType::Boolean);
-add_field!(UploadOptions, "colors", bool, DataType::Boolean);
-add_field!(UploadOptions, "faces", bool, DataType::Boolean);
-add_field!(UploadOptions, "quality_analysis", bool, DataType::Boolean);
-add_field!(
-    UploadOptions,
-    "accessibility_analysis",
-    bool,
-    DataType::Boolean
-);
-add_field!(
-    UploadOptions,
-    "cinemagraph_analysis",
-    bool,
-    DataType::Boolean
-);
-add_field!(UploadOptions, "image_metadata", bool, DataType::Boolean);
-add_field!(UploadOptions, "phash", bool, DataType::Boolean);
-add_field!(
-    UploadOptions,
-    "responsive_breakpoints",
-    Vec<ResponsiveBreakpoints>,
-    DataType::ResponsiveBreakpoints
-);
-add_field!(
-    UploadOptions,
-    "categorization",
-    Vec<Categorizations>,
-    DataType::Categorization
-);
-add_field!(UploadOptions, "detection", String, DataType::String);
-add_field!(UploadOptions, "ocr", String, DataType::String);
-add_field!(UploadOptions, "eager", String, DataType::String);
-add_field!(UploadOptions, "eager_async", bool, DataType::Boolean);
-add_field!(
-    UploadOptions,
-    "eager_notification_url",
-    String,
-    DataType::String
-);
-add_field!(UploadOptions, "transformation", String, DataType::String);
-add_field!(UploadOptions, "format", String, DataType::String);
-add_field!(
-    UploadOptions,
-    "custom_coordinates",
-    Coordinates,
-    DataType::Coordinates
-);
-add_field!(
-    UploadOptions,
-    "face_coordinates",
-    Vec<Coordinates>,
-    DataType::FaceCoordinates
-);
-add_field!(
-    UploadOptions,
-    "background_removal",
-    BackgroundRemoval,
-    DataType::BackgroundRemoval
-);
-add_field!(
-    UploadOptions,
-    "raw_convert",
-    RawConvert,
-    DataType::RawConvert
-);
-add_field!(
-    UploadOptions,
-    "allowed_formats",
-    Vec<String>,
-    DataType::VecOfString
-);
-add_field!(UploadOptions, "async", bool, DataType::Boolean);
-add_field!(UploadOptions, "backup", bool, DataType::Boolean);
-add_field!(UploadOptions, "callback", String, DataType::String);
-add_field!(UploadOptions, "eval", String, DataType::String);
-add_field!(UploadOptions, "headers", HashMap<AllowedHeaders, String>, DataType::AllowedHeaders);
-add_field!(UploadOptions, "invalidate", bool, DataType::Boolean);
-add_field!(UploadOptions, "notification_url", String, DataType::String);
-add_field!(UploadOptions, "proxy", String, DataType::String);
-add_field!(
-    UploadOptions,
-    "return_delete_token",
-    bool,
-    DataType::Boolean
-);
 
 #[cfg(test)]
 mod tests {
