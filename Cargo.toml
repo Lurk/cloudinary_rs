@@ -14,7 +14,6 @@ anyhow = "1.0.75"
 chrono = "0.4.31"
 itertools = "0.11.0"
 mime = "0.3.17"
-paste = "1.0.14"
 reqwest = { version = "0.11.22", features = ["json", "multipart", "stream"] }
 serde = { version = "1.0.189", features = ["derive"] }
 serde_json = "1.0.107"
