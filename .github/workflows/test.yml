@@ -76,8 +76,8 @@ jobs:
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
-     - name: Set env
-       run: |
+      - name: Set env
+        run: |
           echo "CLOUDINARY_API_SECRET=$(echo $GITHUB_SHA_SHORT)" >> $GITHUB_ENV
           echo "CLOUDINARY_API_KEY=$(echo $CLOUDINARY_API_KEY)" >> $GITHUB_ENV
           echo "CLOUDINARY_CLOUD_NAME=$(echo $CLOUDINARY_API_SECRET)" >> $GITHUB_ENV 
@@ -99,7 +99,7 @@ jobs:
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
-     - name: Set env
+      - name: Set env
         run: |
           echo "CLOUDINARY_API_SECRET=$(echo $GITHUB_SHA_SHORT)" >> $GITHUB_ENV
           echo "CLOUDINARY_API_KEY=$(echo $CLOUDINARY_API_KEY)" >> $GITHUB_ENV
