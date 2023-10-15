@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "CLOUDINARY_API_SECRET=$(echo $GITHUB_SHA_SHORT)" >> $GITHUB_ENV
           echo "CLOUDINARY_API_KEY=$(echo $CLOUDINARY_API_KEY)" >> $GITHUB_ENV
-          echo "CLOUDINARY_CLOUD_NAME=$(echo $CLOUDINARY_API_SECRET)" >> $GITHUB_ENV          
+          echo "CLOUDINARY_CLOUD_NAME=$(echo $CLOUDINARY_CLOUD_NAME)" >> $GITHUB_ENV          
       - name: cargo test --locked
         run: cargo test --locked --all-features --all-targets
   # https://twitter.com/alcuadrado/status/1571291687837732873
@@ -54,7 +54,7 @@ jobs:
         run: |
           echo "CLOUDINARY_API_SECRET=$(echo $GITHUB_SHA_SHORT)" >> $GITHUB_ENV
           echo "CLOUDINARY_API_KEY=$(echo $CLOUDINARY_API_KEY)" >> $GITHUB_ENV
-          echo "CLOUDINARY_CLOUD_NAME=$(echo $CLOUDINARY_API_SECRET)" >> $GITHUB_ENV          
+          echo "CLOUDINARY_CLOUD_NAME=$(echo $CLOUDINARY_CLOUD_NAME)" >> $GITHUB_ENV          
       - name: cargo test
         if: hashFiles('Cargo.lock') != ''
         run: cargo test --locked --all-features --all-targets
