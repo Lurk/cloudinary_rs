@@ -50,14 +50,16 @@ impl Cloudinary {
             Source::Url(url) => Part::text(url.as_str().to_string()),
         };
         let multipart = self.build_form_data(options).part("file", file);
+        let url = format!(
+            "https://api.cloudinary.com/v1_1/{}/image/upload",
+            self.cloud_name
+        );
         let response = client
-            .post(format!(
-                "https://api.cloudinary.com/v1_1/{}/image/upload",
-                self.cloud_name
-            ))
+            .post(&url)
             .multipart(multipart)
             .send()
-            .await?;
+            .await
+            .context(format!("upload to {}", url))?;
         let text = response.text().await?;
         let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
         Ok(json)
