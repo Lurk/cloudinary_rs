@@ -8,6 +8,8 @@ At the moment, there is only half-backed upload functionality, but if you need m
 
 ## Usage
 
+### Upload
+
 ```rust
 use cloudinary::{Source, Cloudinary};
 use cloudinary::upload::{UploadOptions};
@@ -15,3 +17,7 @@ let options = UploadOptions::new().set_public_id("file.jpg".to_string());
 let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
 let result = cloudinary.upload_image(Source::Path("./image.jpg".into()), &options);
 ```
+
+### Manipulation
+
+
