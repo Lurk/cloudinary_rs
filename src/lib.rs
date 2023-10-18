@@ -23,6 +23,32 @@ pub enum Source {
     Url(Url),
 }
 
+/// # Cloudinary client
+///
+/// ## Upload an image
+///
+/// ```rust
+/// use cloudinary::{Source, Cloudinary};
+/// use cloudinary::upload::{UploadOptions};
+/// let options = UploadOptions::new().set_public_id("file.jpg".to_string());
+/// let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
+/// let result = cloudinary.upload_image(Source::Path("./image.jpg".into()), &options);
+/// ```
+///
+/// ## Transform an image
+///
+/// ```rust
+/// use cloudinary::transformation::{Transformations, ResizeMode, Image, AspectRatio};
+///
+/// let mut image = Image::new("test".into(), "path/name.png".into());
+///
+/// image.add_transformation(Transformations::Resize(ResizeMode::ScaleByWidth(100,Some(AspectRatio::Ignore),None)));
+/// assert_eq!(
+///     image.build().as_str(),
+///     "https://res.cloudinary.com/test/image/upload/fl_ignore_aspect_ratio,c_scale,w_100/path/name.png"
+/// );
+/// ```
+///
 impl Cloudinary {
     pub fn new(api_key: String, cloud_name: String, api_secret: String) -> Self {
         Cloudinary {
