@@ -29,6 +29,27 @@
 //!     "https://res.cloudinary.com/test/image/upload/c_scale,w_100/path/name.png"
 //! );
 //! ```
+//!
+//! # Get Image from URL
+//!
+//! ```rust
+//! use cloudinary::transformation::Image;
+//! use url::Url;
+//! let image = Image::try_from(
+//!     Url::parse("https://res.cloudinary.com/test/image/upload/path/name.png").unwrap()
+//! ).unwrap();
+//! assert_eq!(image.to_string(), "https://res.cloudinary.com/test/image/upload/path/name.png");
+//! ```
+//!
+//! # Get a list of all images with a given tag
+//! ```rust
+//! # async fn tags(){
+//! use cloudinary::tags::get_tags;
+//! let tags = get_tags("cloud_name".into(), "tag_name".into()).await;
+//! # }
+//!
+//! ```
+//!
 //! # Minimum supported Rust version
 //!
 //! The minimum supported Rust version for this crate is 1.65
