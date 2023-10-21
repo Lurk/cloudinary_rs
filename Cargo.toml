@@ -3,7 +3,7 @@ name = "cloudinary"
 description = "A Rust library for the Cloudinary API"
 license = "MIT OR Apache-2.0"
 keywords = ["cloudinary", "api", "image", "video", "upload"]
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 rust-version = "1.65.0"                                      # due to openssl = { version = "0.10", features = ["vendored"] }
 
