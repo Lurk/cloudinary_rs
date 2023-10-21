@@ -29,6 +29,9 @@
 //!     "https://res.cloudinary.com/test/image/upload/c_scale,w_100/path/name.png"
 //! );
 //! ```
+//! # Minimum supported Rust version
+//!
+//! The minimum supported Rust version for this crate is 1.65
 //!
 pub mod transformation;
 pub mod upload;

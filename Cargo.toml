@@ -5,7 +5,7 @@ license = "MIT OR Apache-2.0"
 keywords = ["cloudinary", "api", "image", "video", "upload"]
 version = "0.2.1"
 edition = "2021"
-rust-version = "1.63.0"                                      # due to openssl = { version = "0.10", features = ["vendored"] }
+rust-version = "1.65.0"                                      # due to openssl = { version = "0.10", features = ["vendored"] }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
