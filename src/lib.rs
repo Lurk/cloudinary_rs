@@ -33,6 +33,7 @@
 //!
 //! The minimum supported Rust version for this crate is 1.65
 //!
+pub mod tags;
 pub mod transformation;
 pub mod upload;
 
