@@ -1,95 +1,41 @@
+pub mod aspect_ratio;
+pub mod crop_mode;
+pub mod gravity;
+pub mod resize_mode;
+
 use std::{
+    cell::RefCell,
     fmt::{Display, Formatter},
     sync::Arc,
 };
 
 use regex::Regex;
-use reqwest::Url;
+use url::Url;
 
-pub enum ResizeMode {
-    /// Resizes the image to the specified width and aspect ratio.
-    /// Optional parameters:
-    /// * Aspect ratio - if not specified the original aspect ratio is preserved
-    /// * g_liquid - enables content-aware liquid rescaling (also sometimes known as 'seam carving'),
-    /// which can be useful when changing the aspect ratio of an image.
-    ScaleByWidth(u32, Option<AspectRatio>, Option<()>),
-    /// Resizes the image to the specified height and aspect ratio. If aspect ratio is not specified, it is preserved.
-    ScaleByHeight(u32, Option<AspectRatio>, Option<()>),
-    /// Resizes the image to the specified dimensions without retaining the original aspect ratio.
-    Scale(u32, u32, Option<()>),
-}
+use self::{crop_mode::CropMode, resize_mode::ResizeMode};
 
-impl Display for ResizeMode {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ResizeMode::ScaleByWidth(width, aspect_ratio, g_liquid) => write!(
-                f,
-                "{}c_scale,w_{}{}",
-                aspect_ratio
-                    .as_ref()
-                    .map(|ar| format!("{},", ar))
-                    .unwrap_or("".into()),
-                width,
-                g_liquid.map(|_| ",g_liquid").unwrap_or("")
-            ),
-            ResizeMode::ScaleByHeight(height, aspect_ratio, g_liquid) => write!(
-                f,
-                "{}c_scale,h_{}{}",
-                aspect_ratio
-                    .as_ref()
-                    .map(|ar| format!("{},", ar))
-                    .unwrap_or("".into()),
-                height,
-                g_liquid.map(|_| ",g_liquid").unwrap_or("")
-            ),
-            ResizeMode::Scale(width, height, g_liquid) => write!(
-                f,
-                "c_scale,w_{},h_{}{}",
-                width,
-                height,
-                g_liquid.map(|_| ",g_liquid").unwrap_or("")
-            ),
-        }
-    }
-}
-
-pub enum AspectRatio {
-    /// Ignore the aspect ratio of the input and stretch to exactly the given width or height values.
-    Ignore,
-    /// The usual way to represent aspect ratio is by using a colon, e.g. 4:3.
-    Sides(u32, u32),
-    /// A decimal value representing the width divided by the height (e.g., 0.5).
-    Result(f32),
-}
-
-impl Display for AspectRatio {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AspectRatio::Sides(width, height) => write!(f, "ar_{}:{}", width, height),
-            AspectRatio::Result(result) => write!(f, "ar_{}", result),
-            AspectRatio::Ignore => write!(f, "fl_ignore_aspect_ratio"),
-        }
-    }
-}
-
+#[derive(Debug, Clone)]
 pub enum Transformations {
     /// These modes adjust the size of the delivered image without cropping out any elements of the original image.
     Resize(ResizeMode),
+    Crop(CropMode),
 }
 
 impl Display for Transformations {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Transformations::Resize(resize_mode) => write!(f, "{}", resize_mode),
+            Transformations::Crop(crop_mode) => write!(f, "{}", crop_mode),
         }
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Image {
     cloud_name: Arc<str>,
     public_id: Arc<str>,
     format: Option<Arc<str>>,
-    transformations: Vec<Transformations>,
+    transformations: RefCell<Vec<Transformations>>,
 }
 
 impl Image {
@@ -98,7 +44,7 @@ impl Image {
             cloud_name,
             public_id,
             format: None,
-            transformations: Vec::new(),
+            transformations: RefCell::new(Vec::new()),
         }
     }
 
@@ -110,8 +56,9 @@ impl Image {
         self.format.clone()
     }
 
-    pub fn add_transformation(&mut self, transformation: Transformations) {
-        self.transformations.push(transformation);
+    pub fn add_transformation(self, transformation: Transformations) -> Self {
+        self.transformations.borrow_mut().push(transformation);
+        self
     }
 
     /// Build a URL
@@ -127,6 +74,7 @@ impl Image {
         let mut url = Url::parse("https://res.cloudinary.com").unwrap();
         let transformations = self
             .transformations
+            .borrow()
             .iter()
             .map(|t| t.to_string())
             .collect::<Vec<String>>()
@@ -165,6 +113,18 @@ impl Image {
     }
 }
 
+impl From<Image> for Url {
+    fn from(image: Image) -> Self {
+        image.build()
+    }
+}
+
+impl Display for Image {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.build())
+    }
+}
+
 impl TryFrom<Url> for Image {
     type Error = &'static str;
 
@@ -175,8 +135,6 @@ impl TryFrom<Url> for Image {
         if link.is_empty() {
             return Err("Empty url");
         }
-
-        println!("{:?}", cloudinary_regex.captures(link));
 
         let parts = cloudinary_regex.captures(link).map(|caps| {
             (
@@ -200,6 +158,8 @@ impl TryFrom<Url> for Image {
 
 #[cfg(test)]
 mod tests {
+    use crate::transformation::aspect_ratio::AspectRatio;
+
     use super::*;
 
     #[test]
@@ -267,91 +227,111 @@ mod tests {
 
     #[test]
     fn add_scale() {
-        let mut image = Image::new("test".into(), "path/name".into());
-        image.add_transformation(Transformations::Resize(ResizeMode::Scale(100, 100, None)));
+        let image = Image::new("test".into(), "path/name".into()).add_transformation(
+            Transformations::Resize(ResizeMode::Scale {
+                width: 100,
+                height: 100,
+                liquid: None,
+            }),
+        );
         assert_eq!(
-            image.build().as_str(),
+            image.to_string(),
             "https://res.cloudinary.com/test/image/upload/c_scale,w_100,h_100/path/name"
         );
     }
 
     #[test]
     fn add_scale_by_width() {
-        let mut image = Image::new("test".into(), "path/name".into());
-        image.add_transformation(Transformations::Resize(ResizeMode::ScaleByWidth(
-            100, None, None,
-        )));
+        let image = Image::new("test".into(), "path/name".into()).add_transformation(
+            Transformations::Resize(ResizeMode::ScaleByWidth {
+                width: 100,
+                ar: None,
+                liquid: None,
+            }),
+        );
         assert_eq!(
-            image.build().as_str(),
+            image.to_string(),
             "https://res.cloudinary.com/test/image/upload/c_scale,w_100/path/name"
         );
     }
 
     #[test]
     fn add_scale_by_height() {
-        let mut image = Image::new("test".into(), "path/name".into());
-        image.add_transformation(Transformations::Resize(ResizeMode::ScaleByHeight(
-            100, None, None,
-        )));
+        let image_url: Url = Image::new("test".into(), "path/name".into())
+            .add_transformation(Transformations::Resize(ResizeMode::ScaleByHeight {
+                height: 100,
+                ar: None,
+                liquid: None,
+            }))
+            .into();
         assert_eq!(
-            image.build().as_str(),
+            image_url.as_str(),
             "https://res.cloudinary.com/test/image/upload/c_scale,h_100/path/name"
         );
     }
 
     #[test]
     fn add_scale_by_width_with_aspect_ratio() {
-        let mut image = Image::new("test".into(), "path/name".into());
-        image.add_transformation(Transformations::Resize(ResizeMode::ScaleByWidth(
-            100,
-            Some(AspectRatio::Sides(16, 9)),
-            None,
-        )));
+        let image = Image::new("test".into(), "path/name".into()).add_transformation(
+            Transformations::Resize(ResizeMode::ScaleByWidth {
+                width: 100,
+                ar: Some(AspectRatio::Sides(16, 9)),
+                liquid: None,
+            }),
+        );
         assert_eq!(
-            image.build().as_str(),
+            image.to_string(),
             "https://res.cloudinary.com/test/image/upload/ar_16:9,c_scale,w_100/path/name"
         );
     }
 
     #[test]
     fn add_scale_by_height_with_aspect_ratio() {
-        let mut image = Image::new("test".into(), "path/name".into());
-        image.add_transformation(Transformations::Resize(ResizeMode::ScaleByHeight(
-            100,
-            Some(AspectRatio::Result(0.5)),
-            None,
-        )));
+        let image = Image::new("test".into(), "path/name".into()).add_transformation(
+            Transformations::Resize(ResizeMode::ScaleByHeight {
+                height: 100,
+                ar: Some(AspectRatio::Result(0.5)),
+                liquid: None,
+            }),
+        );
         assert_eq!(
-            image.build().as_str(),
+            image.to_string(),
             "https://res.cloudinary.com/test/image/upload/ar_0.5,c_scale,h_100/path/name"
         );
     }
 
     #[test]
     fn add_scale_by_width_with_aspect_ratio_and_liquid() {
-        let mut image = Image::new("test".into(), "path/name".into());
-        image.add_transformation(Transformations::Resize(ResizeMode::ScaleByWidth(
-            100,
-            Some(AspectRatio::Sides(16, 9)),
-            Some(()),
-        )));
+        let image_url: Url = Image::new("test".into(), "path/name".into())
+            .add_transformation(Transformations::Resize(ResizeMode::ScaleByWidth {
+                width: 100,
+                ar: Some(AspectRatio::Sides(16, 9)),
+                liquid: Some(()),
+            }))
+            .into();
         assert_eq!(
-            image.build().as_str(),
+            image_url.as_str(),
             "https://res.cloudinary.com/test/image/upload/ar_16:9,c_scale,w_100,g_liquid/path/name"
         );
     }
 
     #[test]
     fn scale_ignore_aspect_ratio() {
-        let mut image = Image::new("test".into(), "path/name".into());
-        image.add_transformation(Transformations::Resize(ResizeMode::ScaleByWidth(
-            100,
-            Some(AspectRatio::Ignore),
-            None,
-        )));
+        let image_url: Url = Image::new("test".into(), "path/name".into())
+            .add_transformation(Transformations::Resize(ResizeMode::ScaleByWidth {
+                width: 100,
+                ar: Some(AspectRatio::Ignore),
+                liquid: None,
+            }))
+            .into();
         assert_eq!(
-            image.build().as_str(),
+            image_url.as_str(),
             "https://res.cloudinary.com/test/image/upload/fl_ignore_aspect_ratio,c_scale,w_100/path/name"
         );
     }
 }
+
+// https://res.cloudinary.com/barhamon/image/upload/c_fill,w_1190/tmb_preparations/thermarest_neoair_max.jpg
+// https://res.cloudinary.com/barhamon/image/upload/c_fill,g_auto,w_1190/tmb_preparations/thermarest_neoair_max.jpg
+// https://res.cloudinary.com/barhamon/image/upload/c_scale,w_1190/tmb_preparations/thermarest_neoair_max.jpg
+// https://res.cloudinary.com/barhamon/image/upload/c_fill,h_1190/tmb_preparations/thermarest_neoair_max.jpg

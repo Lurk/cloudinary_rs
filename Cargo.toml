@@ -3,7 +3,7 @@ name = "cloudinary"
 description = "A Rust library for the Cloudinary API"
 license = "MIT OR Apache-2.0"
 keywords = ["cloudinary", "api", "image", "video", "upload"]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 rust-version = "1.63.0"                                      # due to openssl = { version = "0.10", features = ["vendored"] }
 
@@ -24,6 +24,7 @@ regex = "1.10.1"
 log = "0.4.20"
 openssl = { version = "0.10.57", features = ["vendored"] }
 openssl-src = "111.28.0+1.1.1w"                                               # due to minimal version fail
+url = "2.4.1"
 
 [dev-dependencies]
 dotenv = "0.15.0"
