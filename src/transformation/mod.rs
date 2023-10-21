@@ -330,8 +330,3 @@ mod tests {
         );
     }
 }
-
-// https://res.cloudinary.com/barhamon/image/upload/c_fill,w_1190/tmb_preparations/thermarest_neoair_max.jpg
-// https://res.cloudinary.com/barhamon/image/upload/c_fill,g_auto,w_1190/tmb_preparations/thermarest_neoair_max.jpg
-// https://res.cloudinary.com/barhamon/image/upload/c_scale,w_1190/tmb_preparations/thermarest_neoair_max.jpg
-// https://res.cloudinary.com/barhamon/image/upload/c_fill,h_1190/tmb_preparations/thermarest_neoair_max.jpg
