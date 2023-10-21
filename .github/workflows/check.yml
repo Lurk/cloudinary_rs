@@ -79,8 +79,8 @@ jobs:
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
     strategy:
       matrix:
-        msrv: [1.63.0] # due to openssl = { version = "0.10", features = ["vendored"] } 
-    name: ubuntu / ${{ matrix.msrv }}
+        msrv: [1.65.0] # due to openssl-src v300.1.5+3.1.3    
+        name: ubuntu / ${{ matrix.msrv }}
     steps:
       - uses: actions/checkout@v4
         with:
