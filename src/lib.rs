@@ -32,6 +32,11 @@
 //!
 //! # Get Image from URL
 //!
+//! Unofficial api. This is not supported by Cloudinary, and can break at any time.
+//! Officially you should use public_id that you get from upload.
+//!
+//! (Support)[https://support.cloudinary.com/hc/en-us/community/posts/360006941639-How-to-programmatically-retrieve-public-id-from-URL-]
+//!
 //! ```rust
 //! use cloudinary::transformation::Image;
 //! use url::Url;
@@ -41,7 +46,7 @@
 //! assert_eq!(image.to_string(), "https://res.cloudinary.com/test/image/upload/path/name.png");
 //! ```
 //!
-//! # Get a list of all images with a given tag
+//! # Get a list of all assets with a given tag
 //! ```rust
 //! # async fn tags(){
 //! use cloudinary::tags::get_tags;

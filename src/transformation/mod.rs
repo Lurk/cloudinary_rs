@@ -9,7 +9,6 @@ use std::{
     sync::Arc,
 };
 
-use regex::Regex;
 use url::Url;
 
 use self::{crop_mode::CropMode, resize_mode::ResizeMode};
@@ -125,34 +124,103 @@ impl Display for Image {
     }
 }
 
+/// Check if the string is a transformation
+/// A transformation is a string that has underscore and the length of the head is less than 4
+/// https://support.cloudinary.com/hc/en-us/community/posts/4414437232018-Invalid-transformation-parameter
+fn is_transformation(s: &str) -> bool {
+    if let Some((head, _)) = s.split_once('_') {
+        return head.len() < 4;
+    }
+    false
+}
+
+/// Check if the string is a version where version is a string that starts with 'v' and the rest of the string a Unix
+/// timestamp
+/// https://support.cloudinary.com/hc/en-us/articles/202520912-What-are-image-versions-
+fn is_version(s: &str) -> bool {
+    s.starts_with('v') && s.len() == 11 && s[1..].chars().all(|c| c.is_ascii_digit())
+}
+
+/// Parse a URL to an Image
+/// Unofficial. Can break at any time.
+/// Official recommendation is to use public_id that you get after uploading an image to Cloudinary.
 impl TryFrom<Url> for Image {
     type Error = &'static str;
 
     fn try_from(url: Url) -> Result<Self, Self::Error> {
-        let cloudinary_regex: Regex = Regex::new(r"^.+\.cloudinary\.com/(?:([^/]+)/)image/?(?:(upload|fetch|private|authenticated|sprite|facebook|twitter|youtube|vimeo)/)?(?:(?:[^_/]+_[^,/]+,?)*/)?(?:v(\d+|\w{1,2})/)?([^\.^\s]+)(?:\.(.+))?$").unwrap();
-
-        let link = url.as_str();
-        if link.is_empty() {
-            return Err("Empty url");
+        println!("host: {}", url.host_str().unwrap());
+        if url.host_str().unwrap() != "res.cloudinary.com" {
+            return Err("Not a cloudinary url");
         }
 
-        let parts = cloudinary_regex.captures(link).map(|caps| {
-            (
-                caps.get(1).unwrap().as_str(),
-                caps.get(4).unwrap().as_str(),
-                caps.get(5).unwrap().as_str(),
-            )
-        });
-
-        if let Some((cloud_name, public_id, extension)) = parts {
-            let mut image = Image::new(cloud_name.into(), public_id.into());
-            if !extension.is_empty() {
-                image.set_format(extension);
+        let mut cloud_name: Option<&str> = None;
+        let mut public_id_parts: Vec<(&str, Option<&str>)> = Vec::new();
+        let mut public_id_teritory = false;
+        for (pos, s) in url.path_segments().unwrap().enumerate() {
+            match pos {
+                0 => {
+                    cloud_name = Some(s);
+                }
+                1 => {
+                    if s != "image" {
+                        return Err("Only image is supported");
+                    }
+                }
+                2 => {
+                    if ![
+                        "upload",
+                        "fetch",
+                        "private",
+                        "authenticated",
+                        "sprite",
+                        "facebook",
+                        "twitter",
+                        "youtube",
+                        "vimeo",
+                    ]
+                    .contains(&s)
+                    {
+                        return Err("Invalid mode");
+                    }
+                }
+                _ => {
+                    if !public_id_teritory && is_version(s) {
+                        public_id_teritory = true;
+                    } else if !public_id_teritory && is_transformation(s) {
+                    } else if let Some((head, tail)) = s.rsplit_once('.') {
+                        public_id_teritory = true;
+                        public_id_parts.push((head, Some(tail)));
+                    } else {
+                        public_id_teritory = true;
+                        public_id_parts.push((s, None));
+                    }
+                }
             }
-            Ok(image)
-        } else {
-            Err("Invalid url")
         }
+
+        let cloud_name = cloud_name.ok_or("No cloud_name is found")?;
+        let last = public_id_parts.pop().ok_or("no public_id is found")?;
+        let mut public_id = public_id_parts
+            .iter()
+            .map(|(head, tail)| {
+                if let Some(tail) = tail {
+                    format!("{}.{}/", head, tail)
+                } else {
+                    format!("{}/", head)
+                }
+            })
+            .collect::<Vec<String>>()
+            .join("");
+
+        public_id.push_str(last.0);
+        let format = last.1;
+
+        let mut image = Image::new(cloud_name.into(), public_id.into());
+        if let Some(extension) = format {
+            image.set_format(extension);
+        }
+
+        Ok(image)
     }
 }
 
@@ -328,5 +396,44 @@ mod tests {
             image_url.as_str(),
             "https://res.cloudinary.com/test/image/upload/fl_ignore_aspect_ratio,c_scale,w_100/path/name"
         );
+    }
+
+    #[test]
+    fn from_url_with_dots_in_transformation() {
+        let image: Image =
+            Url::parse("https://res.cloudinary.com/test/image/upload/ar_0.5,foo/1.jpg")
+                .unwrap()
+                .try_into()
+                .unwrap();
+
+        assert_eq!(image.cloud_name, "test".into());
+        assert_eq!(image.public_id, "1".into());
+        assert_eq!(image.get_format(), Some("jpg".into()));
+    }
+
+    #[test]
+    fn from_url_with_dots_in_public_id() {
+        let image: Image =
+            Url::parse("https://res.cloudinary.com/test/image/upload/ar_0.5,foo/1.2.jpg")
+                .unwrap()
+                .try_into()
+                .unwrap();
+
+        assert_eq!(image.cloud_name, "test".into());
+        assert_eq!(image.public_id, "1.2".into());
+        assert_eq!(image.get_format(), Some("jpg".into()));
+    }
+
+    #[test]
+    fn from_url_without_extension() {
+        let image: Image =
+            Url::parse("https://res.cloudinary.com/test/image/upload/ar_0.5,foo/v1640995200/1")
+                .unwrap()
+                .try_into()
+                .unwrap();
+
+        assert_eq!(image.cloud_name, "test".into());
+        assert_eq!(image.public_id, "1".into());
+        assert_eq!(image.get_format(), None);
     }
 }
