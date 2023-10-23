@@ -37,7 +37,7 @@ assert_eq!(
 Unofficial api. This is not supported by Cloudinary, and can break at any time.
 Officially you should use public_id that you get from upload.
 
-(Support)[https://support.cloudinary.com/hc/en-us/community/posts/360006941639-How-to-programmatically-retrieve-public-id-from-URL-]
+[Support](https://support.cloudinary.com/hc/en-us/community/posts/360006941639-How-to-programmatically-retrieve-public-id-from-URL-)
 
 ```rust
 use cloudinary::transformation::Image;
