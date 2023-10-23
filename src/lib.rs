@@ -29,10 +29,37 @@
 //!     "https://res.cloudinary.com/test/image/upload/c_scale,w_100/path/name.png"
 //! );
 //! ```
+//!
+//! # Get Image from URL
+//!
+//! Unofficial api. This is not supported by Cloudinary, and can break at any time.
+//! Officially you should use public_id that you get from upload.
+//!
+//! (Support)[https://support.cloudinary.com/hc/en-us/community/posts/360006941639-How-to-programmatically-retrieve-public-id-from-URL-]
+//!
+//! ```rust
+//! use cloudinary::transformation::Image;
+//! use url::Url;
+//! let image = Image::try_from(
+//!     Url::parse("https://res.cloudinary.com/test/image/upload/path/name.png").unwrap()
+//! ).unwrap();
+//! assert_eq!(image.to_string(), "https://res.cloudinary.com/test/image/upload/path/name.png");
+//! ```
+//!
+//! # Get a list of all assets with a given tag
+//! ```rust
+//! # async fn tags(){
+//! use cloudinary::tags::get_tags;
+//! let tags = get_tags("cloud_name".into(), "tag_name".into()).await;
+//! # }
+//!
+//! ```
+//!
 //! # Minimum supported Rust version
 //!
 //! The minimum supported Rust version for this crate is 1.65
 //!
+pub mod tags;
 pub mod transformation;
 pub mod upload;
 
