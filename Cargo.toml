@@ -22,7 +22,7 @@ tokio = { version = "1.33.0", features = ["rt", "macros"] }
 tokio-util = "0.7.9"
 log = "0.4.20"
 openssl = { version = "0.10.57", features = ["vendored"] }
-openssl-src = "111.28.0+1.1.1w"                                               # due to minimal version fail
+openssl-src = "300.1.6+1.1.1w"                                               # due to minimal version fail
 url = "2.4.1"
 
 [dev-dependencies]
