@@ -148,7 +148,6 @@ impl TryFrom<Url> for Image {
     type Error = &'static str;
 
     fn try_from(url: Url) -> Result<Self, Self::Error> {
-        println!("host: {}", url.host_str().unwrap());
         if url.host_str().unwrap() != "res.cloudinary.com" {
             return Err("Not a cloudinary url");
         }
