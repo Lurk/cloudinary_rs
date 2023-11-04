@@ -72,6 +72,7 @@ use sha1::{Digest, Sha1};
 use std::path::PathBuf;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
+use upload::resource_type::ResourceTypes;
 use upload::{result::UploadResult, UploadOptions};
 
 pub struct Cloudinary {
@@ -102,11 +103,8 @@ impl Cloudinary {
     /// let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
     /// let result = cloudinary.upload_image(Source::Path("./image.jpg".into()), &options);
     /// ```
-    pub async fn upload_image(
-        &self,
-        src: Source,
-        options: &UploadOptions<'_>,
-    ) -> Result<UploadResult> {
+
+    pub async fn upload(&self, src: Source, options: &UploadOptions<'_>) -> Result<UploadResult> {
         let client = Client::new();
         let file = match src {
             Source::Path(path) => prepare_file(&path).await?,
@@ -114,8 +112,12 @@ impl Cloudinary {
         };
         let multipart = self.build_form_data(options).part("file", file);
         let url = format!(
-            "https://api.cloudinary.com/v1_1/{}/image/upload",
-            self.cloud_name
+            "https://api.cloudinary.com/v1_1/{}/{}/upload",
+            self.cloud_name,
+            options
+                .get_resource_type()
+                .unwrap_or(ResourceTypes::Image)
+                .to_string()
         );
         let response = client
             .post(&url)
@@ -126,6 +128,16 @@ impl Cloudinary {
         let text = response.text().await?;
         let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
         Ok(json)
+    }
+
+    pub async fn upload_image(
+        &self,
+        src: Source,
+        options: &UploadOptions<'_>,
+    ) -> Result<UploadResult> {
+        let new_opts = options.clone();
+        let updated_options = new_opts.set_resource_type(ResourceTypes::Image);
+        self.upload(src, &updated_options).await
     }
 
     fn build_form_data(&self, options: &UploadOptions) -> Form {
