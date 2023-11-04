@@ -95,15 +95,20 @@ impl Cloudinary {
         }
     }
 
-    /// uploads an image
+    /// upload files of type `ResourceTypes`
     /// ```rust
     /// use cloudinary::{Source, Cloudinary};
     /// use cloudinary::upload::{UploadOptions};
-    /// let options = UploadOptions::new().set_public_id("file.jpg".to_string());
-    /// let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
-    /// let result = cloudinary.upload_image(Source::Path("./image.jpg".into()), &options);
+    /// use upload::resource_type::ResourceTypes;
+    /// let cloudinary = Cloudinary::new(
+    ///         "api_key".to_string(),
+    ///         "cloud_name".to_string(),
+    ///         "api_secret".to_string()
+    ///     );
+    /// let options = UploadOptions::new().set_public_id("app_data.sql".to_string());
+    /// options.set_resource_type(ResourceTypes::Raw)
+    /// let result = cloudinary.upload_image(Source::Path("./data.sql".into()), &options);
     /// ```
-
     pub async fn upload(&self, src: Source, options: &UploadOptions<'_>) -> Result<UploadResult> {
         let client = Client::new();
         let file = match src {
@@ -130,6 +135,14 @@ impl Cloudinary {
         Ok(json)
     }
 
+    /// uploads an image
+    /// ```rust
+    /// use cloudinary::{Source, Cloudinary};
+    /// use cloudinary::upload::{UploadOptions};
+    /// let options = UploadOptions::new().set_public_id("file.jpg".to_string());
+    /// let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
+    /// let result = cloudinary.upload_image(Source::Path("./image.jpg".into()), &options);
+    /// ```
     pub async fn upload_image(
         &self,
         src: Source,
