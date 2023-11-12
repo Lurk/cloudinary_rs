@@ -98,16 +98,16 @@ impl Cloudinary {
     /// upload files of type `ResourceTypes`
     /// ```rust
     /// use cloudinary::{Source, Cloudinary};
-    /// use cloudinary::upload::{UploadOptions};
-    /// use upload::resource_type::ResourceTypes;
+    /// use cloudinary::upload::{resource_type::ResourceTypes, UploadOptions};
     /// let cloudinary = Cloudinary::new(
     ///         "api_key".to_string(),
     ///         "cloud_name".to_string(),
     ///         "api_secret".to_string()
     ///     );
-    /// let options = UploadOptions::new().set_public_id("app_data.sql".to_string());
-    /// options.set_resource_type(ResourceTypes::Raw)
-    /// let result = cloudinary.upload_image(Source::Path("./data.sql".into()), &options);
+    /// let options = UploadOptions::new()
+    ///     .set_public_id("app_data.sql".to_string())
+    ///     .set_resource_type(ResourceTypes::Raw);
+    /// let result = cloudinary.upload(Source::Path("./data.sql".into()), &options);
     /// ```
     pub async fn upload(&self, src: Source, options: &UploadOptions<'_>) -> Result<UploadResult> {
         let client = Client::new();
