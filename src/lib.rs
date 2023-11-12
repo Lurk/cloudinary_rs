@@ -72,6 +72,7 @@ use sha1::{Digest, Sha1};
 use std::path::PathBuf;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
+use upload::resource_type::ResourceTypes;
 use upload::{result::UploadResult, UploadOptions};
 
 pub struct Cloudinary {
@@ -94,6 +95,46 @@ impl Cloudinary {
         }
     }
 
+    /// upload files of type `ResourceTypes`
+    /// ```rust
+    /// use cloudinary::{Source, Cloudinary};
+    /// use cloudinary::upload::{resource_type::ResourceTypes, UploadOptions};
+    /// let cloudinary = Cloudinary::new(
+    ///         "api_key".to_string(),
+    ///         "cloud_name".to_string(),
+    ///         "api_secret".to_string()
+    ///     );
+    /// let options = UploadOptions::new()
+    ///     .set_public_id("app_data.sql".to_string())
+    ///     .set_resource_type(ResourceTypes::Raw);
+    /// let result = cloudinary.upload(Source::Path("./data.sql".into()), &options);
+    /// ```
+    pub async fn upload(&self, src: Source, options: &UploadOptions<'_>) -> Result<UploadResult> {
+        let client = Client::new();
+        let file = match src {
+            Source::Path(path) => prepare_file(&path).await?,
+            Source::Url(url) => Part::text(url.as_str().to_string()),
+        };
+        let multipart = self.build_form_data(options).part("file", file);
+        let url = format!(
+            "https://api.cloudinary.com/v1_1/{}/{}/upload",
+            self.cloud_name,
+            options
+                .get_resource_type()
+                .unwrap_or(ResourceTypes::Image)
+                .to_string()
+        );
+        let response = client
+            .post(&url)
+            .multipart(multipart)
+            .send()
+            .await
+            .context(format!("upload to {}", url))?;
+        let text = response.text().await?;
+        let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
+        Ok(json)
+    }
+
     /// uploads an image
     /// ```rust
     /// use cloudinary::{Source, Cloudinary};
@@ -107,25 +148,9 @@ impl Cloudinary {
         src: Source,
         options: &UploadOptions<'_>,
     ) -> Result<UploadResult> {
-        let client = Client::new();
-        let file = match src {
-            Source::Path(path) => prepare_file(&path).await?,
-            Source::Url(url) => Part::text(url.as_str().to_string()),
-        };
-        let multipart = self.build_form_data(options).part("file", file);
-        let url = format!(
-            "https://api.cloudinary.com/v1_1/{}/image/upload",
-            self.cloud_name
-        );
-        let response = client
-            .post(&url)
-            .multipart(multipart)
-            .send()
-            .await
-            .context(format!("upload to {}", url))?;
-        let text = response.text().await?;
-        let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
-        Ok(json)
+        let new_opts = options.clone();
+        let updated_options = new_opts.set_resource_type(ResourceTypes::Image);
+        self.upload(src, &updated_options).await
     }
 
     fn build_form_data(&self, options: &UploadOptions) -> Form {

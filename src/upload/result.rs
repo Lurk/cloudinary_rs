@@ -36,9 +36,9 @@ pub struct Response {
     pub version: usize,
     pub version_id: String,
     pub signature: String,
-    pub width: usize,
-    pub height: usize,
-    pub format: String,
+    pub width: Option<usize>,
+    pub height: Option<usize>,
+    pub format: Option<String>,
     pub resource_type: String,
     #[serde(deserialize_with = "deserialize_from_str")]
     pub created_at: DateTime<Utc>,

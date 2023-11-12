@@ -5,7 +5,7 @@ mod categorizations;
 mod data_types;
 mod delivery_type;
 mod raw_convert;
-mod resource_type;
+pub mod resource_type;
 mod responsive_breakpoints;
 pub mod result;
 
@@ -19,7 +19,7 @@ use self::{
     responsive_breakpoints::ResponsiveBreakpoints,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UploadOptions<'entry_key_lifetime> {
     inner: BTreeMap<&'entry_key_lifetime str, DataType>,
 }
