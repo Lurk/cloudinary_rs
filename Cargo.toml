@@ -31,3 +31,7 @@ url = "2.4.1"
 
 [dev-dependencies]
 dotenv = "0.15.0"
+
+# for minimal-versions  
+[target.'cfg(any())'.dependencies]
+openssl = { version = "0.10.59", optional = true } # needed to allow foo to build with -Zminimal-versions
