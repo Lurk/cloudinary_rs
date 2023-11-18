@@ -2,9 +2,11 @@ use dotenv::dotenv;
 use std::env::var;
 
 use crate::{
-    upload::result::UploadResult::{Error, Success},
     upload::UploadOptions,
-    Cloudinary, Source,
+    upload::{
+        result::UploadResult::{Error, Success},
+        Source, Upload,
+    },
 };
 
 #[tokio::test]
@@ -14,7 +16,7 @@ async fn test_image_upload_from_url() {
     let api_key = var("CLOUDINARY_API_KEY").expect("enviroment variables not set");
     let cloud_name = var("CLOUDINARY_CLOUD_NAME").expect("enviroment variables not set");
 
-    let cloudinary = Cloudinary::new(api_key, cloud_name, api_secret);
+    let cloudinary = Upload::new(api_key, cloud_name, api_secret);
     let image_url = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png";
     let public_id = "image_upload_from_url";
 
@@ -22,7 +24,7 @@ async fn test_image_upload_from_url() {
         .set_public_id(String::from(public_id))
         .set_overwrite(true);
     let res = cloudinary
-        .upload_image(Source::Url(image_url.try_into().unwrap()), &options)
+        .image(Source::Url(image_url.try_into().unwrap()), &options)
         .await
         .unwrap();
 
@@ -39,7 +41,7 @@ async fn test_image_upload_from_path() {
     let api_key = var("CLOUDINARY_API_KEY").expect("enviroment variables not set");
     let cloud_name = var("CLOUDINARY_CLOUD_NAME").expect("enviroment variables not set");
 
-    let cloudinary = Cloudinary::new(api_key, cloud_name, api_secret);
+    let cloudinary = Upload::new(api_key, cloud_name, api_secret);
     let image_path = "./assets/1x1.png";
     let public_id = "image_upload_from_path";
 
@@ -47,7 +49,7 @@ async fn test_image_upload_from_path() {
         .set_public_id(String::from(public_id))
         .set_overwrite(true);
     let res = cloudinary
-        .upload_image(Source::Path(image_path.try_into().unwrap()), &options)
+        .image(Source::Path(image_path.try_into().unwrap()), &options)
         .await
         .unwrap();
 

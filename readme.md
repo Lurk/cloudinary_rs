@@ -10,11 +10,10 @@ me know.
 ## Upload an image
 
 ```rust
-use cloudinary::{Source, Cloudinary};
-use cloudinary::upload::{UploadOptions};
+use cloudinary::upload::{UploadOptions, Source, Upload};
 let options = UploadOptions::new().set_public_id("file.jpg".to_string());
-let cloudinary = Cloudinary::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
-let result = cloudinary.upload_image(Source::Path("./image.jpg".into()), &options);
+let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
+let result = upload.image(Source::Path("./image.jpg".into()), &options);
 ```
 
 ## Transform an image
