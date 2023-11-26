@@ -1,6 +1,9 @@
 pub mod aspect_ratio;
+pub mod background;
 pub mod crop_mode;
 pub mod gravity;
+pub mod named_color;
+pub mod pad_mode;
 pub mod resize_mode;
 
 use std::{
@@ -11,13 +14,14 @@ use std::{
 
 use url::Url;
 
-use self::{crop_mode::CropMode, resize_mode::ResizeMode};
+use self::{crop_mode::CropMode, pad_mode::PadMode, resize_mode::ResizeMode};
 
 #[derive(Debug, Clone)]
 pub enum Transformations {
     /// These modes adjust the size of the delivered image without cropping out any elements of the original image.
     Resize(ResizeMode),
     Crop(CropMode),
+    Pad(PadMode),
 }
 
 impl Display for Transformations {
@@ -25,6 +29,7 @@ impl Display for Transformations {
         match self {
             Transformations::Resize(resize_mode) => write!(f, "{}", resize_mode),
             Transformations::Crop(crop_mode) => write!(f, "{}", crop_mode),
+            Transformations::Pad(pad_mode) => write!(f, "{}", pad_mode),
         }
     }
 }
