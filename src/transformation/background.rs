@@ -85,9 +85,15 @@ impl Display for Color {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Color::Named(color) => write!(f, "{}", color),
-            Color::RGB(r, g, b) => write!(f, "rgb:{:x?}{:x?}{:x?}", r, g, b),
-            Color::RGBA(r, g, b, a) => write!(f, "rgb:{:x?}{:x?}{:x?}{:x?}", r, g, b, a),
+            Color::RGB(r, g, b) => write!(f, "rgb:{:02x?}{:02x?}{:02x?}", r, g, b),
+            Color::RGBA(r, g, b, a) => write!(f, "rgb:{:02x?}{:02x?}{:02x?}{:02x?}", r, g, b, a),
         }
+    }
+}
+
+impl From<NamedColor> for Color {
+    fn from(color: NamedColor) -> Self {
+        Color::Named(color)
     }
 }
 
@@ -110,7 +116,7 @@ pub struct Auto {
 
 impl Display for Auto {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut params = vec![];
+        let mut params = vec!["auto".to_string()];
         if let Some(mode) = &self.mode {
             params.push(mode.to_string());
         }
@@ -130,7 +136,7 @@ impl Display for Auto {
                     .join("_")
             ));
         }
-        write!(f, "auto:{}", params.join(":"))
+        write!(f, "{}", params.join(":"))
     }
 }
 
@@ -144,11 +150,265 @@ pub enum Background {
     Auto(Auto),
 }
 
+impl From<Color> for Background {
+    fn from(color: Color) -> Self {
+        Background::Color(color)
+    }
+}
+
+impl From<NamedColor> for Background {
+    fn from(color: NamedColor) -> Self {
+        Background::Color(Color::Named(color))
+    }
+}
+
+impl From<Auto> for Background {
+    fn from(auto: Auto) -> Self {
+        Background::Auto(auto)
+    }
+}
+
 impl Display for Background {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Background::Color(color) => write!(f, "b_{}", color),
             Background::Auto(auto) => write!(f, "b_{}", auto),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Auto;
+    use super::AutoModes;
+    use super::Direction;
+    use super::Number;
+    use crate::transformation::{
+        background::{Background, Color},
+        named_color::NamedColor,
+    };
+
+    #[test]
+    fn color() {
+        assert_eq!(Color::Named(NamedColor::Black).to_string(), "black");
+        assert_eq!(Color::RGB(2, 10, 255).to_string(), "rgb:020aff");
+        assert_eq!(Color::RGBA(10, 100, 110, 111).to_string(), "rgb:0a646e6f");
+    }
+
+    #[test]
+    fn auto() {
+        assert_eq!(
+            Auto {
+                mode: None,
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::Border),
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:border"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::Predominant),
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:predominant"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::BorderContrast),
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:border_contrast"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::PredominantContrast),
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:predominant_contrast"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::PredominantGradient),
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:predominant_gradient"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::PredominantGradientContrast),
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:predominant_gradient_contrast"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::BorderGradient),
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:border_gradient"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::BorderGradientContrast),
+                number: None,
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:border_gradient_contrast"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::Border),
+                number: Some(Number::Two),
+                direction: None,
+                palette: None,
+            }
+            .to_string(),
+            "auto:border:2"
+        );
+
+        assert_eq!(
+            Auto {
+                mode: Some(AutoModes::Border),
+                number: Some(Number::Two),
+                direction: Some(Direction::Horizontal),
+                palette: None,
+            }
+            .to_string(),
+            "auto:border:2:horizontal"
+        );
+    }
+
+    #[test]
+    fn background() {
+        assert_eq!(
+            Background::Color(Color::Named(NamedColor::Black)).to_string(),
+            "b_black"
+        );
+        assert_eq!(
+            Background::Color(Color::RGB(2, 10, 255)).to_string(),
+            "b_rgb:020aff"
+        );
+        assert_eq!(
+            Background::Color(Color::RGBA(10, 100, 110, 111)).to_string(),
+            "b_rgb:0a646e6f"
+        );
+
+        assert_eq!(
+            super::Background::Auto(Auto {
+                mode: None,
+                number: None,
+                direction: None,
+                palette: None,
+            })
+            .to_string(),
+            "b_auto"
+        );
+
+        assert_eq!(
+            Background::Auto(Auto {
+                mode: Some(AutoModes::Border),
+                number: None,
+                direction: None,
+                palette: None,
+            })
+            .to_string(),
+            "b_auto:border"
+        );
+
+        assert_eq!(
+            Background::Auto(Auto {
+                mode: Some(AutoModes::Predominant),
+                number: None,
+                direction: None,
+                palette: None,
+            })
+            .to_string(),
+            "b_auto:predominant"
+        );
+
+        assert_eq!(
+            Background::Auto(Auto {
+                mode: Some(AutoModes::BorderContrast),
+                number: None,
+                direction: None,
+                palette: None,
+            })
+            .to_string(),
+            "b_auto:border_contrast"
+        );
+
+        assert_eq!(
+            Background::Auto(Auto {
+                mode: Some(AutoModes::PredominantContrast),
+                number: None,
+                direction: None,
+                palette: None,
+            })
+            .to_string(),
+            "b_auto:predominant_contrast"
+        );
+
+        assert_eq!(
+            Background::Auto(Auto {
+                mode: Some(AutoModes::PredominantGradient),
+                number: None,
+                direction: None,
+                palette: None,
+            })
+            .to_string(),
+            "b_auto:predominant_gradient"
+        );
+
+        assert_eq!(
+            Background::Auto(Auto {
+                mode: Some(AutoModes::PredominantGradientContrast),
+                number: None,
+                direction: None,
+                palette: None,
+            })
+            .to_string(),
+            "b_auto:predominant_gradient_contrast"
+        );
     }
 }

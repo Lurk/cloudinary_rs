@@ -96,3 +96,221 @@ impl Display for PadMode {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::transformation::{
+        aspect_ratio::AspectRatio,
+        background::{Auto, AutoModes, Color, Direction, Number},
+        gravity::Gravity,
+        named_color::NamedColor,
+        pad_mode::PadMode,
+    };
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn pad_by_width() {
+        assert_eq!(
+            PadMode::PadByWidth {
+                width: 100,
+                ar: None,
+                background: None,
+                gravity: None,
+            }
+            .to_string(),
+            "c_pad,w_100"
+        );
+        assert_eq!(
+            PadMode::PadByWidth {
+                width: 100,
+                ar: Some(AspectRatio::Sides(16, 9)),
+                background: None,
+                gravity: None,
+            }
+            .to_string(),
+            "ar_16:9,c_pad,w_100"
+        );
+        assert_eq!(
+            PadMode::PadByWidth {
+                width: 100,
+                ar: None,
+                background: Some(NamedColor::Black.into()),
+                gravity: None,
+            }
+            .to_string(),
+            "b_black,c_pad,w_100"
+        );
+        assert_eq!(
+            PadMode::PadByWidth {
+                width: 100,
+                ar: None,
+                background: None,
+                gravity: Some(Gravity::North),
+            }
+            .to_string(),
+            "c_pad,g_north,w_100"
+        );
+        assert_eq!(
+            PadMode::PadByWidth {
+                width: 100,
+                ar: Some(AspectRatio::Sides(16, 9)),
+                background: Some(Color::RGB(0, 0, 0).into()),
+                gravity: Some(Gravity::North),
+            }
+            .to_string(),
+            "b_rgb:000000,ar_16:9,c_pad,g_north,w_100"
+        );
+        assert_eq!(
+            PadMode::PadByWidth {
+                width: 100,
+                ar: Some(AspectRatio::Sides(16, 9)),
+                background: Some(
+                    Auto {
+                        mode: Some(AutoModes::BorderGradient),
+                        number: Some(Number::Four),
+                        direction: Some(Direction::Vertical),
+                        palette: Some(vec![NamedColor::Black.into(), NamedColor::White.into()])
+                    }
+                    .into()
+                ),
+                gravity: Some(Gravity::North),
+            }
+            .to_string(),
+            "b_auto:border_gradient:4:vertical:palette_black_white,ar_16:9,c_pad,g_north,w_100"
+        );
+    }
+
+    #[test]
+    fn pad_by_height() {
+        assert_eq!(
+            PadMode::PadByHeight {
+                height: 100,
+                ar: None,
+                background: None,
+                gravity: None,
+            }
+            .to_string(),
+            "c_pad,h_100"
+        );
+        assert_eq!(
+            PadMode::PadByHeight {
+                height: 100,
+                ar: Some(AspectRatio::Result(0.5)),
+                background: None,
+                gravity: None,
+            }
+            .to_string(),
+            "ar_0.5,c_pad,h_100"
+        );
+        assert_eq!(
+            PadMode::PadByHeight {
+                height: 100,
+                ar: None,
+                background: Some(NamedColor::MediumTurquoise.into()),
+                gravity: None,
+            }
+            .to_string(),
+            "b_mediumturquoise,c_pad,h_100"
+        );
+        assert_eq!(
+            PadMode::PadByHeight {
+                height: 100,
+                ar: None,
+                background: None,
+                gravity: Some(Gravity::FaceCenter),
+            }
+            .to_string(),
+            "c_pad,g_face:center,h_100"
+        );
+        assert_eq!(
+            PadMode::PadByHeight {
+                height: 100,
+                ar: Some(AspectRatio::Sides(16, 9)),
+                background: Some(Color::RGBA(0, 0, 0, 10).into()),
+                gravity: Some(Gravity::SouthEast),
+            }
+            .to_string(),
+            "b_rgb:0000000a,ar_16:9,c_pad,g_south_east,h_100"
+        );
+        assert_eq!(
+            PadMode::PadByHeight {
+                height: 100,
+                ar: Some(AspectRatio::Sides(16, 9)),
+                background: Some(
+                    Auto {
+                        mode: Some(AutoModes::Border),
+                        number: Some(Number::Two),
+                        direction: Some(Direction::Horizontal),
+                        palette: Some(vec![NamedColor::Brown.into(), NamedColor::BurlyWood.into()])
+                    }
+                    .into()
+                ),
+                gravity: Some(Gravity::NorthEast),
+            }
+            .to_string(),
+            "b_auto:border:2:horizontal:palette_brown_burlywood,ar_16:9,c_pad,g_north_east,h_100"
+        );
+    }
+
+    #[test]
+    fn pad() {
+        assert_eq!(
+            PadMode::Pad {
+                width: 100,
+                height: 100,
+                background: None,
+                gravity: None,
+            }
+            .to_string(),
+            "c_pad,w_100,h_100"
+        );
+        assert_eq!(
+            PadMode::Pad {
+                width: 100,
+                height: 100,
+                background: Some(NamedColor::MediumPurple.into()),
+                gravity: None,
+            }
+            .to_string(),
+            "b_mediumpurple,c_pad,w_100,h_100"
+        );
+        assert_eq!(
+            PadMode::Pad {
+                width: 100,
+                height: 100,
+                background: None,
+                gravity: Some(Gravity::FaceAuto),
+            }
+            .to_string(),
+            "c_pad,g_face:auto,w_100,h_100"
+        );
+        assert_eq!(
+            PadMode::Pad {
+                width: 100,
+                height: 100,
+                background: Some(Color::RGBA(0, 1, 0, 10).into()),
+                gravity: Some(Gravity::AutoClassic),
+            }
+            .to_string(),
+            "b_rgb:0001000a,c_pad,g_auto:classic,w_100,h_100"
+        );
+        assert_eq!(
+            PadMode::Pad {
+                width: 100,
+                height: 100,
+                background: Some(
+                    Auto {
+                        mode: Some(AutoModes::PredominantGradientContrast),
+                        number: None,
+                        direction: None,
+                        palette: Some(vec![NamedColor::Azure.into(), NamedColor::SkyBlue.into()])
+                    }
+                    .into()
+                ),
+                gravity: Some(Gravity::CustomFace),
+            }
+            .to_string(),
+            "b_auto:predominant_gradient_contrast:palette_azure_skyblue,c_pad,g_custom:face,w_100,h_100"
+        );
+    }
+}

@@ -16,6 +16,13 @@
 //!
 //! # Transform an image
 //!
+//! Currently supported transformations:
+//! * Resize
+//! * Crop
+//! * Pad
+//!
+//! ## Resizing an image:
+//!
 //! ```rust
 //! use cloudinary::transformation::{
 //!     Transformations::Resize, resize_mode::ResizeMode::ScaleByWidth, Image, aspect_ratio::AspectRatio
@@ -26,6 +33,37 @@
 //! assert_eq!(
 //!     image.to_string(),
 //!     "https://res.cloudinary.com/test/image/upload/c_scale,w_100/path/name.png"
+//! );
+//! ```
+//!
+//! ## Cropping an image:
+//!
+//! ```rust
+//! use cloudinary::transformation::{
+//!    Transformations::Crop, crop_mode::CropMode::FillByWidth, Image, aspect_ratio::AspectRatio
+//! };
+//!
+//! let image = Image::new("test".into(), "path/name.png".into())
+//!     .add_transformation(Crop(FillByWidth{ width:100, ar: None, gravity: None}));
+//!
+//! assert_eq!(
+//!     image.to_string(),
+//!     "https://res.cloudinary.com/test/image/upload/c_fill,w_100/path/name.png"
+//! );
+//! ```
+//!
+//! ## Padding an image:
+//!
+//! ```rust
+//! use cloudinary::transformation::{
+//!   Transformations::Pad, pad_mode::PadMode::PadByWidth, Image, aspect_ratio::AspectRatio
+//! };
+//!
+//! let image = Image::new("test".into(), "path/name.png".into())
+//!     .add_transformation(Pad(PadByWidth{ width:100, ar: None, background: None, gravity: None}));
+//! assert_eq!(
+//!    image.to_string(),
+//!    "https://res.cloudinary.com/test/image/upload/c_pad,w_100/path/name.png"
 //! );
 //! ```
 //!

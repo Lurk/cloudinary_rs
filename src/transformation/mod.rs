@@ -16,6 +16,7 @@ use url::Url;
 
 use self::{crop_mode::CropMode, pad_mode::PadMode, resize_mode::ResizeMode};
 
+#[non_exhaustive]
 #[derive(Debug, Clone)]
 pub enum Transformations {
     /// These modes adjust the size of the delivered image without cropping out any elements of the original image.
@@ -439,5 +440,21 @@ mod tests {
         assert_eq!(image.cloud_name, "test".into());
         assert_eq!(image.public_id, "1".into());
         assert_eq!(image.get_format(), None);
+    }
+
+    #[test]
+    fn pad_mode() {
+        let image_url: Url = Image::new("test".into(), "path/name".into())
+            .add_transformation(Transformations::Pad(PadMode::PadByWidth {
+                width: 100,
+                ar: None,
+                background: None,
+                gravity: None,
+            }))
+            .into();
+        assert_eq!(
+            image_url.as_str(),
+            "https://res.cloudinary.com/test/image/upload/c_pad,w_100/path/name"
+        );
     }
 }
