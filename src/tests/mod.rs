@@ -10,6 +10,31 @@ use crate::{
 };
 
 #[tokio::test]
+async fn test_image_upload_from_base64() {
+    dotenv().ok();
+    let api_secret = var("CLOUDINARY_API_SECRET").expect("enviroment variables not set");
+    let api_key = var("CLOUDINARY_API_KEY").expect("enviroment variables not set");
+    let cloud_name = var("CLOUDINARY_CLOUD_NAME").expect("enviroment variables not set");
+
+    let cloudinary = Upload::new(api_key, cloud_name, api_secret);
+    let image_base64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII";
+    let public_id = "image_upload_from_base64";
+
+    let options = UploadOptions::new()
+        .set_public_id(String::from(public_id))
+        .set_overwrite(true);
+    let res = cloudinary
+        .image(Source::Base64(image_base64.try_into().unwrap()), &options)
+        .await
+        .unwrap();
+
+    match res {
+        Success(img) => assert_eq!(img.public_id, public_id),
+        Error(err) => panic!("{}", err.error.message),
+    }
+}
+
+#[tokio::test]
 async fn test_image_upload_from_url() {
     dotenv().ok();
     let api_secret = var("CLOUDINARY_API_SECRET").expect("enviroment variables not set");
