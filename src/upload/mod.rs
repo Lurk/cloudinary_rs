@@ -38,7 +38,7 @@ pub struct Upload {
 pub enum Source {
     Path(PathBuf),
     Url(Url),
-    Base64(String),
+    DataUrl(String),
 }
 
 impl Upload {
@@ -62,7 +62,7 @@ impl Upload {
         let file = match src {
             Source::Path(path) => prepare_file(&path).await?,
             Source::Url(url) => Part::text(url.as_str().to_string()),
-            Source::Base64(base64) => Part::text(base64),
+            Source::DataUrl(base64) => Part::text(base64),
         };
         let multipart = self.build_form_data(options).part("file", file);
         let url = format!(

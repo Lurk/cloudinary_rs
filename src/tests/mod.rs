@@ -11,11 +11,11 @@ use crate::{
 
 fn env() -> (String, String, String) {
     dotenv().ok();
-    let api_secret = var("CLOUDINARY_API_SECRET").expect("environment variables not set");
     let api_key = var("CLOUDINARY_API_KEY").expect("environment variables not set");
     let cloud_name = var("CLOUDINARY_CLOUD_NAME").expect("environment variables not set");
+    let api_secret = var("CLOUDINARY_API_SECRET").expect("environment variables not set");
 
-    (api_secret, api_key, cloud_name)
+    (api_key, cloud_name, api_secret)
 }
 
 #[tokio::test]
@@ -26,10 +26,10 @@ async fn test_image_upload_from_base64() {
     let public_id = "image_upload_from_base64";
 
     let options = UploadOptions::new()
-        .set_public_id(String::from(public_id))
+        .set_public_id(public_id.into())
         .set_overwrite(true);
     let res = cloudinary
-        .image(Source::Base64(String::from(image_base64)), &options)
+        .image(Source::DataUrl(image_base64.into()), &options)
         .await
         .unwrap();
 
@@ -47,7 +47,7 @@ async fn test_image_upload_from_url() {
     let public_id = "image_upload_from_url";
 
     let options = UploadOptions::new()
-        .set_public_id(String::from(public_id))
+        .set_public_id(public_id.into())
         .set_overwrite(true);
     let res = cloudinary
         .image(Source::Url(image_url.try_into().unwrap()), &options)
@@ -68,10 +68,10 @@ async fn test_image_upload_from_path() {
     let public_id = "image_upload_from_path";
 
     let options = UploadOptions::new()
-        .set_public_id(String::from(public_id))
+        .set_public_id(public_id.into())
         .set_overwrite(true);
     let res = cloudinary
-        .image(Source::Path(image_path.try_into().unwrap()), &options)
+        .image(Source::Path(image_path.into()), &options)
         .await
         .unwrap();
 

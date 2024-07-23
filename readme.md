@@ -9,12 +9,42 @@ me know.
 
 ## Upload an image
 
+Upload can be done from different sources:
+
+- local file
+- remote file
+- data url [rfc2397](https://datatracker.ietf.org/doc/html/rfc2397)
+
+
+### Local file
+
 ```rust
 use cloudinary::upload::{UploadOptions, Source, Upload};
 let options = UploadOptions::new().set_public_id("file.jpg".to_string());
 let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
 let result = upload.image(Source::Path("./image.jpg".into()), &options);
 ```
+
+### Remote file
+
+```rust
+use cloudinary::upload::{UploadOptions, Source, Upload};
+let image_url = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png";
+let options = UploadOptions::new().set_public_id("1x1.png".to_string());
+let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
+let result = upload.image(Source::Url(image_url.try_into().unwrap(), &options);
+```
+
+### Data url
+
+```rust
+use cloudinary::upload::{UploadOptions, Source, Upload};
+let data_url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
+let options = UploadOptions::new().set_public_id("1x1.png".to_string());
+let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
+let result = upload.image(Source::DataUrl(data_url.into()), &options);
+```
+
 
 ## Transform an image
 
