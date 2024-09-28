@@ -99,11 +99,7 @@ impl Image {
             Some(format) => {
                 let file_name = self.public_id.split('/').last().unwrap().to_string();
 
-                let new_flie_name = format!(
-                    "{}.{}",
-                    file_name.split('.').collect::<Vec<&str>>().pop().unwrap(),
-                    format
-                );
+                let new_file_name = format!("{}.{}", file_name, format);
                 url.set_path(
                     path.replace(file_name.as_str(), new_flie_name.as_str())
                         .as_str(),
@@ -427,6 +423,10 @@ mod tests {
         assert_eq!(image.cloud_name, "test".into());
         assert_eq!(image.public_id, "1.2".into());
         assert_eq!(image.get_format(), Some("jpg".into()));
+        assert_eq!(
+            image.to_string(),
+            "https://res.cloudinary.com/test/image/upload/1.2.jpg"
+        )
     }
 
     #[test]
