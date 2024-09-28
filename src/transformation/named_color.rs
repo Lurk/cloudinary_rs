@@ -1,6 +1,6 @@
 use std::fmt::Display;
 /// CSS named colors V4.
-/// https://www.w3.org/TR/css-color-4/#named-colors
+/// <https://www.w3.org/TR/css-color-4/#named-colors>
 #[derive(Debug, Clone)]
 pub enum NamedColor {
     AliceBlue,

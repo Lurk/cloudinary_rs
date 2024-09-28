@@ -99,13 +99,9 @@ impl Image {
             Some(format) => {
                 let file_name = self.public_id.split('/').last().unwrap().to_string();
 
-                let new_flie_name = format!(
-                    "{}.{}",
-                    file_name.split('.').collect::<Vec<&str>>().pop().unwrap(),
-                    format
-                );
+                let new_file_name = format!("{}.{}", file_name, format);
                 url.set_path(
-                    path.replace(file_name.as_str(), new_flie_name.as_str())
+                    path.replace(file_name.as_str(), new_file_name.as_str())
                         .as_str(),
                 );
             }
@@ -160,7 +156,7 @@ impl TryFrom<Url> for Image {
 
         let mut cloud_name: Option<&str> = None;
         let mut public_id_parts: Vec<(&str, Option<&str>)> = Vec::new();
-        let mut public_id_teritory = false;
+        let mut public_id_territory = false;
         for (pos, s) in url.path_segments().unwrap().enumerate() {
             match pos {
                 0 => {
@@ -189,14 +185,14 @@ impl TryFrom<Url> for Image {
                     }
                 }
                 _ => {
-                    if !public_id_teritory && is_version(s) {
-                        public_id_teritory = true;
-                    } else if !public_id_teritory && is_transformation(s) {
+                    if !public_id_territory && is_version(s) {
+                        public_id_territory = true;
+                    } else if !public_id_territory && is_transformation(s) {
                     } else if let Some((head, tail)) = s.rsplit_once('.') {
-                        public_id_teritory = true;
+                        public_id_territory = true;
                         public_id_parts.push((head, Some(tail)));
                     } else {
-                        public_id_teritory = true;
+                        public_id_territory = true;
                         public_id_parts.push((s, None));
                     }
                 }
@@ -427,6 +423,10 @@ mod tests {
         assert_eq!(image.cloud_name, "test".into());
         assert_eq!(image.public_id, "1.2".into());
         assert_eq!(image.get_format(), Some("jpg".into()));
+        assert_eq!(
+            image.to_string(),
+            "https://res.cloudinary.com/test/image/upload/1.2.jpg"
+        )
     }
 
     #[test]
