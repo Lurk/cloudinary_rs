@@ -1,4 +1,5 @@
 use dotenv::dotenv;
+use pretty_assertions::assert_eq;
 use std::env::var;
 
 use crate::{
@@ -77,6 +78,41 @@ async fn test_image_upload_from_path() {
 
     match res {
         Success(img) => assert_eq!(img.public_id, public_id),
+        Error(err) => panic!("{}", err.error.message),
+    }
+}
+
+#[tokio::test]
+async fn test_destroy_non_existing_asset() {
+    let (api_key, cloud_name, api_secret) = env();
+    let cloudinary = Upload::new(api_key, cloud_name, api_secret);
+    let public_id = "random-1239290r29-does-it-exists-3we97pcsdlncdsa";
+
+    let res = cloudinary.destroy(public_id).await.unwrap();
+
+    assert_eq!(res.result, "not found")
+}
+
+#[tokio::test]
+async fn test_destroy_existing_asset() {
+    let (api_key, cloud_name, api_secret) = env();
+    let cloudinary = Upload::new(api_key, cloud_name, api_secret);
+    let image_path = "./assets/1x1.png";
+    let public_id = format!("asset_to_destroy_{}", chrono::Utc::now().timestamp_micros());
+
+    let options = UploadOptions::new()
+        .set_public_id(public_id.clone())
+        .set_overwrite(true);
+    let res = cloudinary
+        .image(Source::Path(image_path.into()), &options)
+        .await
+        .unwrap();
+
+    match res {
+        Success(_) => {
+            let res = cloudinary.destroy(public_id).await.unwrap();
+            assert_eq!(res.result, "ok")
+        }
         Error(err) => panic!("{}", err.error.message),
     }
 }

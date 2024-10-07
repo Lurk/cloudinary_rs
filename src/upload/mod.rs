@@ -14,6 +14,7 @@ use chrono::Utc;
 use itertools::Itertools;
 use reqwest::multipart::{Form, Part};
 use reqwest::{Body, Client, Url};
+use result::DestroyResult;
 use sha1::{Digest, Sha1};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::PathBuf;
@@ -50,7 +51,8 @@ impl Upload {
         }
     }
 
-    /// uploads an image
+    /// Uploads an image
+    ///
     /// ```rust
     /// use cloudinary::upload::{UploadOptions, Source, Upload};
     /// let options = UploadOptions::new().set_public_id("file.jpg".to_string());
@@ -80,33 +82,69 @@ impl Upload {
         Ok(json)
     }
 
+    /// Destroy the asset by public ID.
+    ///
+    /// ```rust
+    /// use cloudinary::upload::{UploadOptions, Source, Upload};
+    /// let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
+    /// let result = upload.destroy("image");
+    /// ```
+    pub async fn destroy<IS>(&self, public_id: IS) -> Result<DestroyResult>
+    where
+        IS: Into<String> + Clone,
+    {
+        let client = Client::new();
+
+        let mut options = UploadOptions::new()
+            .set_public_id(public_id.clone().into())
+            .get_map();
+
+        self.sign(&mut options);
+
+        let url = format!(
+            "https://api.cloudinary.com/v1_1/{}/image/destroy",
+            self.cloud_name
+        );
+        let response = client
+            .post(&url)
+            .form(&options)
+            .send()
+            .await
+            .context(format!("destroy {}", public_id.into()))?;
+        let text = response.text().await?;
+        let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
+        Ok(json)
+    }
+
     fn build_form_data(&self, options: &UploadOptions) -> Form {
         let mut map = options.get_map();
-        let resource_type = map.remove("resource_type");
-        let timestamp = Utc::now().timestamp_millis().to_string();
+        self.sign(&mut map);
 
-        let mut form = Form::new()
-            .text("api_key", self.api_key.clone())
-            .text("timestamp", timestamp.clone());
+        let mut form = Form::new();
 
-        if let Some(value) = resource_type {
-            form = form.text("resource_type", value);
+        for (k, v) in map.iter() {
+            form = form.text(k.clone(), v.clone());
         }
+        form
+    }
 
+    fn sign(&self, map: &mut BTreeMap<String, String>) {
+        let resource_type = map.remove("resource_type");
         let str = map.iter().map(|(k, v)| format!("{k}={v}")).join("&");
         let mut hasher = Sha1::new();
         if !str.is_empty() {
             hasher.update(str);
             hasher.update("&");
         }
+        let timestamp = Utc::now().timestamp_millis().to_string();
         hasher.update(format!("timestamp={}{}", timestamp, self.api_secret));
-        let signature = hasher.finalize();
+        map.insert("signature".to_string(), format!("{:x}", hasher.finalize()));
+        map.insert("api_key".to_string(), self.api_key.clone());
+        map.insert("timestamp".to_string(), timestamp);
 
-        form = form.text("signature", format!("{:x}", signature));
-        for (k, v) in map.iter() {
-            form = form.text(k.clone(), v.clone());
+        if let Some(resource_type) = resource_type {
+            map.insert("resource_type".to_string(), resource_type);
         }
-        form
     }
 }
 
