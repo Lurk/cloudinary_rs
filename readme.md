@@ -15,7 +15,6 @@ Upload can be done from different sources:
 - remote file
 - data url [rfc2397](https://datatracker.ietf.org/doc/html/rfc2397)
 
-
 ### Local file
 
 ```rust
@@ -32,7 +31,7 @@ use cloudinary::upload::{UploadOptions, Source, Upload};
 let image_url = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png";
 let options = UploadOptions::new().set_public_id("1x1.png".to_string());
 let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
-let result = upload.image(Source::Url(image_url.try_into().unwrap(), &options);
+let result = upload.image(Source::Url(image_url.try_into().unwrap()), &options);
 ```
 
 ### Data url
@@ -45,6 +44,12 @@ let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_s
 let result = upload.image(Source::DataUrl(data_url.into()), &options);
 ```
 
+## Destroy an asset by publicID
+```rust
+use cloudinary::upload::Upload;
+let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
+let result = upload.destroy("publicID");
+```
 
 ## Transform an image
 

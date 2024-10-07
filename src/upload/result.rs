@@ -55,3 +55,8 @@ pub struct Response {
     pub original_extension: Option<String>,
     pub api_key: String,
 }
+
+#[derive(Clone, Deserialize, Debug)]
+pub struct DestroyResult {
+    pub result: String,
+}

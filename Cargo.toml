@@ -3,7 +3,7 @@ name = "cloudinary"
 description = "A Rust library for the Cloudinary API"
 license = "MIT OR Apache-2.0"
 keywords = ["cloudinary", "api", "image", "video", "upload"]
-version = "0.5.1"
+version = "0.5.2"
 edition = "2021"
 rust-version = "1.65.0"                                      # due to let-else
 
@@ -25,6 +25,6 @@ url = "2.5.2"
 dotenv = "0.15.0"
 pretty_assertions = "1.4.1"
 
-# for minimal-versions  
+# for minimal-versions
 [target.'cfg(any())'.dependencies]
 openssl = { version = "0.10.59", optional = true } # needed to allow foo to build with -Zminimal-versions
