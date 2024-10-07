@@ -98,10 +98,10 @@ async fn test_destroy_existing_asset() {
     let (api_key, cloud_name, api_secret) = env();
     let cloudinary = Upload::new(api_key, cloud_name, api_secret);
     let image_path = "./assets/1x1.png";
-    let public_id = "asset_to_destroy";
+    let public_id = format!("asset_to_destroy_{}", chrono::Utc::now().timestamp_micros());
 
     let options = UploadOptions::new()
-        .set_public_id(public_id.into())
+        .set_public_id(public_id.clone())
         .set_overwrite(true);
     let res = cloudinary
         .image(Source::Path(image_path.into()), &options)
