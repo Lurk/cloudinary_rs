@@ -33,13 +33,19 @@ jobs:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_SECRET_1: ${{ secrets.CLOUDINARY_API_SECRET_1 }}
+          CLOUDINARY_API_KEY_1: ${{ secrets.CLOUDINARY_API_KEY_1 }}
+          CLOUDINARY_CLOUD_NAME_1: ${{ secrets.CLOUDINARY_CLOUD_NAME_1 }}
         run: cargo test --locked --all-features --all-targets
       # https://github.com/rust-lang/cargo/issues/6669
       - name: cargo test --doc
         env:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}        
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_SECRET_1: ${{ secrets.CLOUDINARY_API_SECRET_1 }}
+          CLOUDINARY_API_KEY_1: ${{ secrets.CLOUDINARY_API_KEY_1 }}
+          CLOUDINARY_CLOUD_NAME_1: ${{ secrets.CLOUDINARY_CLOUD_NAME_1 }}
         run: cargo test --locked --all-features --doc
   minimal:
     runs-on: ubuntu-latest
@@ -60,7 +66,10 @@ jobs:
         env:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}        
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_SECRET_1: ${{ secrets.CLOUDINARY_API_SECRET_1 }}
+          CLOUDINARY_API_KEY_1: ${{ secrets.CLOUDINARY_API_KEY_1 }}
+          CLOUDINARY_CLOUD_NAME_1: ${{ secrets.CLOUDINARY_CLOUD_NAME_1 }}
         run: cargo test --locked --all-features --all-targets
   os-check:
     runs-on: ${{ matrix.os }}
@@ -82,7 +91,10 @@ jobs:
         env:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}        
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_SECRET_1: ${{ secrets.CLOUDINARY_API_SECRET_1 }}
+          CLOUDINARY_API_KEY_1: ${{ secrets.CLOUDINARY_API_KEY_1 }}
+          CLOUDINARY_CLOUD_NAME_1: ${{ secrets.CLOUDINARY_CLOUD_NAME_1 }}
         run: cargo test --locked --all-features --all-targets
   coverage:
     runs-on: ubuntu-latest
@@ -104,7 +116,10 @@ jobs:
         env:
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}        
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_SECRET_1: ${{ secrets.CLOUDINARY_API_SECRET_1 }}
+          CLOUDINARY_API_KEY_1: ${{ secrets.CLOUDINARY_API_KEY_1 }}
+          CLOUDINARY_CLOUD_NAME_1: ${{ secrets.CLOUDINARY_CLOUD_NAME_1 }}
         run: cargo llvm-cov --locked --all-features --lcov --output-path lcov.info
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v4

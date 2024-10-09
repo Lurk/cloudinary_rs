@@ -25,7 +25,10 @@ pub struct Message {
 #[derive(Clone, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum UploadResult {
-    Success(Box<Response>),
+    Response(Box<Response>),
+    /// New* accounts get response in this format by default
+    /// * unfortunately I was not able to find out what exactly "new" means
+    ResponseWithImageMetadata(Box<ResponseWithImageMetadata>),
     Error(Box<Error>),
 }
 
@@ -53,6 +56,52 @@ pub struct Response {
     pub overwritten: Option<bool>,
     pub original_filename: Option<String>,
     pub original_extension: Option<String>,
+    pub api_key: String,
+}
+
+#[derive(Clone, Deserialize, Debug)]
+pub struct ImageMetadata {
+    #[serde(rename(serialize = "JFIFVersion", deserialize = "JFIFVersion"))]
+    pub jfif_version: Option<String>,
+    #[serde(rename(serialize = "ResolutionUnit", deserialize = "ResolutionUnit"))]
+    pub resolution_unit: Option<String>,
+    #[serde(rename(serialize = "XResolution", deserialize = "XResolution"))]
+    pub x_resolution: Option<String>,
+    #[serde(rename(serialize = "YResolution", deserialize = "YResolution"))]
+    pub y_resolution: Option<String>,
+    #[serde(rename(serialize = "Colorspace", deserialize = "Colorspace"))]
+    pub colorspace: Option<String>,
+    #[serde(rename(serialize = "DPI", deserialize = "DPI"))]
+    pub dpi: Option<String>,
+}
+
+/// https://cloudinary.com/documentation/image_upload_api_reference#upload_response
+#[derive(Clone, Deserialize, Debug)]
+pub struct ResponseWithImageMetadata {
+    pub asset_id: String,
+    pub public_id: String,
+    pub version: usize,
+    pub version_id: String,
+    pub signature: String,
+    pub width: usize,
+    pub height: usize,
+    pub format: String,
+    pub resource_type: String,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub created_at: DateTime<Utc>,
+    pub tags: Vec<String>,
+    pub bytes: usize,
+    pub r#type: String,
+    pub etag: String,
+    pub placeholder: bool,
+    pub url: String,
+    pub secure_url: String,
+    pub asset_folder: String,
+    pub display_name: String,
+    pub image_metadata: ImageMetadata,
+    pub illustration_score: f64,
+    pub semi_transparent: bool,
+    pub grayscale: bool,
     pub api_key: String,
 }
 
