@@ -127,6 +127,22 @@ let tags = get_tags("cloud_name".into(), "tag_name".into()).await;
 
 ```
 
+
+## Development
+
+Due to differences in default upload result shape in different accounts, two sets
+of credentials must be present in `.env` for tests to succeed.
+
+```sh
+CLOUDINARY_API_SECRET=***
+CLOUDINARY_API_KEY=***
+CLOUDINARY_CLOUD_NAME=***
+
+CLOUDINARY_API_SECRET_1=***
+CLOUDINARY_API_KEY_1=***
+CLOUDINARY_CLOUD_NAME_1=***
+```
+
 ## Minimum supported Rust version
 
 The minimum supported Rust version for this crate is 1.65
