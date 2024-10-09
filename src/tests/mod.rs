@@ -130,7 +130,7 @@ async fn test_destroy_existing_asset() {
 }
 
 #[tokio::test]
-async fn test_image_upload_from() {
+async fn test_image_upload_from_new_acc() {
     dotenv().ok();
     let api_key = var("CLOUDINARY_API_KEY_1").expect("environment variables not set");
     let cloud_name = var("CLOUDINARY_CLOUD_NAME_1").expect("environment variables not set");
