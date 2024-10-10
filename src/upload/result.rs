@@ -97,11 +97,12 @@ pub struct ResponseWithImageMetadata {
     pub url: String,
     pub secure_url: String,
     pub asset_folder: String,
+    pub overwritten: Option<bool>,
     pub display_name: String,
-    pub image_metadata: ImageMetadata,
-    pub illustration_score: f64,
-    pub semi_transparent: bool,
-    pub grayscale: bool,
+    pub image_metadata: Option<ImageMetadata>,
+    pub illustration_score: Option<f64>,
+    pub semi_transparent: Option<bool>,
+    pub grayscale: Option<bool>,
     pub api_key: String,
 }
 
