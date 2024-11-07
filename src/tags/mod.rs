@@ -32,7 +32,7 @@ pub async fn get_tags(cloud_name: Arc<str>, tag_name: Arc<str>) -> Result<TagLis
     let text = response
         .text()
         .await
-        .context("parsing responce into text")?;
+        .context("parsing response into text")?;
     let json = serde_json::from_str(&text).context(format!("parsing into json:\n{}", text))?;
     Ok(json)
 }
