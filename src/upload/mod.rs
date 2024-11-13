@@ -4,6 +4,8 @@ mod background_removal;
 mod categorizations;
 mod data_types;
 mod delivery_type;
+pub mod moderation;
+pub mod options;
 mod raw_convert;
 mod resource_type;
 mod responsive_breakpoints;
