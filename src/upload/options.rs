@@ -8,7 +8,8 @@ use url::Url;
 use crate::transformation::Transformations;
 
 use super::{
-    access_mode::AccessModes, allowed_headers::AllowedHeaders, categorizations::Categorizations,
+    access_mode::AccessModes, allowed_headers::AllowedHeaders,
+    background_removal::BackgroundRemoval, categorizations::Categorizations,
     delivery_type::DeliveryType, moderation::Moderation, resource_type::ResourceTypes,
     responsive_breakpoints::ResponsiveBreakpoints,
 };
@@ -420,6 +421,18 @@ pub enum OptionalParameters {
     ///
     /// SDKs: Supports arrays. For example: [[10, 20, 150, 130],[213, 345, 82, 61]].
     FaceCoordinates(Vec<[u16; 4]>),
+    /// Automatically remove the background of an image using an add-on.
+    ///
+    /// - Set to cloudinary_ai to use the deep-learning based
+    ///     [Cloudinary AI Background Removal add-on](https://cloudinary.com/documentation/cloudinary_ai_background_removal_addon#removing_the_background_on_upload_update). NOTE: this feature has been superseded by
+    ///     [background removal on the fly](https://cloudinary.com/documentation/cloudinary_ai_background_removal_addon#removing_the_background_on_the_fly).
+    /// - Set to pixelz to use the human-powered
+    ///     [Pixelz Remove-The-Background Editing add-on service](https://cloudinary.com/documentation/remove_the_background_image_editing_addon).
+    ///
+    /// Relevant for images only.
+    ///
+    /// (Asynchronous)
+    BackgroundRemoval(BackgroundRemoval),
     /// A comma-separated list of file formats that are allowed for uploading. Files of other types will be rejected.
     /// The formats can be any combination of image types, video formats or raw file extensions. For
     /// example: mp4,ogv,jpg,png,pdf.
@@ -621,6 +634,10 @@ impl OptionalParameters {
             OptionalParameters::ReturnDeleteToken(b) => {
                 ("return_delete_token".to_string(), b.to_string())
             }
+            OptionalParameters::BackgroundRemoval(background_removal) => (
+                "background_removal".to_string(),
+                background_removal.to_string(),
+            ),
         }
     }
 }
@@ -666,15 +683,16 @@ mod tests {
     };
 
     use itertools::Itertools;
+    use pretty_assertions::assert_eq;
     use url::Url;
 
     use crate::{
         transformation::{crop_mode::CropMode, pad_mode::PadMode, Transformations},
         upload::{
             access_mode::AccessModes, allowed_headers::AllowedHeaders,
-            categorizations::Categorizations, delivery_type::DeliveryType, moderation::Moderation,
-            options::OptionalParameters, resource_type::ResourceTypes,
-            responsive_breakpoints::ResponsiveBreakpoints,
+            background_removal::BackgroundRemoval, categorizations::Categorizations,
+            delivery_type::DeliveryType, moderation::Moderation, options::OptionalParameters,
+            resource_type::ResourceTypes, responsive_breakpoints::ResponsiveBreakpoints,
         },
     };
 
@@ -1243,6 +1261,14 @@ mod tests {
         assert_eq!(
             OptionalParameters::ReturnDeleteToken(false).get_pair(),
             ("return_delete_token".to_string(), "false".to_string())
+        )
+    }
+
+    #[test]
+    fn background_removal() {
+        assert_eq!(
+            OptionalParameters::BackgroundRemoval(BackgroundRemoval::Pixelz).get_pair(),
+            ("background_removal".to_string(), "pixelz".to_string())
         )
     }
 }
