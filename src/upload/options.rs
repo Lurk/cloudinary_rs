@@ -3,7 +3,6 @@ use std::fmt;
 use std::hash::Hash;
 
 use itertools::Itertools;
-use sha1::digest::typenum::Cmp;
 use url::Url;
 
 use crate::transformation::Transformations;
