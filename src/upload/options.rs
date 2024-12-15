@@ -7,6 +7,7 @@ use url::Url;
 
 use crate::transformation::Transformations;
 
+use super::raw_convert::RawConvert;
 use super::{
     access_mode::AccessModes, allowed_headers::AllowedHeaders,
     background_removal::BackgroundRemoval, categorizations::Categorizations,
@@ -433,6 +434,21 @@ pub enum OptionalParameters {
     ///
     /// (Asynchronous)
     BackgroundRemoval(BackgroundRemoval),
+    /// Generates a related file based on the uploaded file.
+    ///
+    /// - Set to `aspose` to automatically create a PDF or other image format from a `raw` Office document using the
+    ///     [Aspose Document Conversion add-on](https://cloudinary.com/documentation/aspose_document_conversion_addon).
+    ///     (Asynchronous)
+    /// - Set to `google_speech` to instruct the
+    ///     [Google AI Video Transcription](https://cloudinary.com/documentation/google_ai_video_transcription_addon)
+    ///     add-on to generate an automatic transcript raw file from an uploaded video. (Asynchronous)
+    /// - Set to `extract_text` to extract all the text from a PDF file and store it in a `raw` JSON file with a
+    ///     public ID in the format: `[pdf_public_id].extract_text.json`. The full URL of the generated JSON file is
+    ///     included in the API response. (Synchronous)
+    ///
+    /// See also:
+    /// [Converting raw files](https://cloudinary.com/documentation/upload_parameters#uploading_non_media_files_as_raw_files).
+    RawConvert(RawConvert),
     /// A comma-separated list of file formats that are allowed for uploading. Files of other types will be rejected.
     /// The formats can be any combination of image types, video formats or raw file extensions. For
     /// example: mp4,ogv,jpg,png,pdf.
@@ -638,6 +654,9 @@ impl OptionalParameters {
                 "background_removal".to_string(),
                 background_removal.to_string(),
             ),
+            OptionalParameters::RawConvert(raw_convert) => {
+                ("raw_convert".to_string(), raw_convert.to_string())
+            }
         }
     }
 }
@@ -692,7 +711,8 @@ mod tests {
             access_mode::AccessModes, allowed_headers::AllowedHeaders,
             background_removal::BackgroundRemoval, categorizations::Categorizations,
             delivery_type::DeliveryType, moderation::Moderation, options::OptionalParameters,
-            resource_type::ResourceTypes, responsive_breakpoints::ResponsiveBreakpoints,
+            raw_convert::RawConvert, resource_type::ResourceTypes,
+            responsive_breakpoints::ResponsiveBreakpoints,
         },
     };
 
@@ -1269,6 +1289,14 @@ mod tests {
         assert_eq!(
             OptionalParameters::BackgroundRemoval(BackgroundRemoval::Pixelz).get_pair(),
             ("background_removal".to_string(), "pixelz".to_string())
+        )
+    }
+
+    #[test]
+    fn raw_convert() {
+        assert_eq!(
+            OptionalParameters::RawConvert(RawConvert::ExtractText).get_pair(),
+            ("raw_convert".to_string(), "extract_text".to_string())
         )
     }
 }
