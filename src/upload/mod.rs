@@ -2,7 +2,6 @@ mod access_mode;
 mod allowed_headers;
 mod background_removal;
 mod categorizations;
-mod data_types;
 mod delivery_type;
 pub mod moderation;
 pub mod options;
