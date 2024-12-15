@@ -1,13 +1,11 @@
 use dotenv::dotenv;
 use pretty_assertions::assert_eq;
-use std::env::var;
+use std::{collections::BTreeSet, env::var};
 
-use crate::{
-    upload::UploadOptions,
-    upload::{
-        result::UploadResult::{Error, Response, ResponseWithImageMetadata},
-        Source, Upload,
-    },
+use crate::upload::{
+    options::OptionalParameters,
+    result::UploadResult::{Error, Response, ResponseWithImageMetadata},
+    Source, Upload,
 };
 
 fn env() -> (String, String, String) {
@@ -26,11 +24,14 @@ async fn test_image_upload_from_base64() {
     let image_base64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
     let public_id = "image_upload_from_base64";
 
-    let options = UploadOptions::new()
-        .set_public_id(public_id.into())
-        .set_overwrite(true);
     let res = cloudinary
-        .image(Source::DataUrl(image_base64.into()), &options)
+        .image(
+            Source::DataUrl(image_base64.into()),
+            &BTreeSet::from([
+                OptionalParameters::PublicId(public_id.into()),
+                OptionalParameters::Overwrite(true),
+            ]),
+        )
         .await
         .unwrap();
 
@@ -50,11 +51,14 @@ async fn test_image_upload_from_url() {
     let image_url = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png";
     let public_id = "image_upload_from_url";
 
-    let options = UploadOptions::new()
-        .set_public_id(public_id.into())
-        .set_overwrite(true);
     let res = cloudinary
-        .image(Source::Url(image_url.try_into().unwrap()), &options)
+        .image(
+            Source::Url(image_url.try_into().unwrap()),
+            &BTreeSet::from([
+                OptionalParameters::PublicId(public_id.into()),
+                OptionalParameters::Overwrite(true),
+            ]),
+        )
         .await
         .unwrap();
 
@@ -74,11 +78,14 @@ async fn test_image_upload_from_path() {
     let image_path = "./assets/1x1.png";
     let public_id = "image_upload_from_path";
 
-    let options = UploadOptions::new()
-        .set_public_id(public_id.into())
-        .set_overwrite(true);
     let res = cloudinary
-        .image(Source::Path(image_path.into()), &options)
+        .image(
+            Source::Path(image_path.into()),
+            &BTreeSet::from([
+                OptionalParameters::PublicId(public_id.into()),
+                OptionalParameters::Overwrite(true),
+            ]),
+        )
         .await
         .unwrap();
 
@@ -109,11 +116,14 @@ async fn test_destroy_existing_asset() {
     let image_path = "./assets/1x1.png";
     let public_id = format!("asset_to_destroy_{}", chrono::Utc::now().timestamp_micros());
 
-    let options = UploadOptions::new()
-        .set_public_id(public_id.clone())
-        .set_overwrite(true);
     let res = cloudinary
-        .image(Source::Path(image_path.into()), &options)
+        .image(
+            Source::Path(image_path.into()),
+            &BTreeSet::from([
+                OptionalParameters::PublicId(public_id.clone()),
+                OptionalParameters::Overwrite(true),
+            ]),
+        )
         .await
         .unwrap();
 
@@ -140,12 +150,15 @@ async fn test_image_upload_from_new_acc_with_metadata() {
     let image_base64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
     let public_id = "image_upload_from_base64";
 
-    let options = UploadOptions::new()
-        .set_image_metadata(true)
-        .set_public_id(public_id.into())
-        .set_overwrite(true);
     let res = cloudinary
-        .image(Source::DataUrl(image_base64.into()), &options)
+        .image(
+            Source::DataUrl(image_base64.into()),
+            &BTreeSet::from([
+                OptionalParameters::PublicId(public_id.into()),
+                OptionalParameters::Overwrite(true),
+                OptionalParameters::MediaMetadata(true),
+            ]),
+        )
         .await
         .unwrap();
 
@@ -167,12 +180,15 @@ async fn test_image_upload_from_new_acc_without_metadata() {
     let image_base64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
     let public_id = "image_upload_from_base64";
 
-    let options = UploadOptions::new()
-        .set_image_metadata(false)
-        .set_public_id(public_id.into())
-        .set_overwrite(true);
     let res = cloudinary
-        .image(Source::DataUrl(image_base64.into()), &options)
+        .image(
+            Source::DataUrl(image_base64.into()),
+            &BTreeSet::from([
+                OptionalParameters::PublicId(public_id.into()),
+                OptionalParameters::Overwrite(true),
+                OptionalParameters::MediaMetadata(false),
+            ]),
+        )
         .await
         .unwrap();
 

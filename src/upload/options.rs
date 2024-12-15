@@ -1,7 +1,9 @@
-use core::fmt;
 use std::collections::{HashMap, HashSet};
+use std::fmt;
+use std::hash::Hash;
 
 use itertools::Itertools;
+use sha1::digest::typenum::Cmp;
 use url::Url;
 
 use crate::transformation::Transformations;
@@ -628,6 +630,32 @@ impl fmt::Display for OptionalParameters {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let (k, v) = self.get_pair();
         write!(f, "{k}={v}")
+    }
+}
+
+impl Hash for OptionalParameters {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.get_pair().0.hash(state);
+    }
+}
+
+impl PartialEq for OptionalParameters {
+    fn eq(&self, other: &Self) -> bool {
+        self.get_pair().0 == other.get_pair().0
+    }
+}
+
+impl Eq for OptionalParameters {}
+
+impl PartialOrd for OptionalParameters {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for OptionalParameters {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.get_pair().0.cmp(&other.get_pair().0)
     }
 }
 
