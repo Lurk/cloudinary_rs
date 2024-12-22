@@ -17,7 +17,7 @@
 //!
 //! ```rust
 //! use std::collections::BTreeSet;
-//! use cloudinary::upload::{Source, Upload, options::OptionalParameters};
+//! use cloudinary::upload::{Source, Upload, OptionalParameters};
 //!
 //! let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
 //! let options = BTreeSet::from([OptionalParameters::PublicId("file.jpg".to_string())]);
@@ -28,7 +28,7 @@
 //!
 //! ```rust
 //! use std::collections::BTreeSet;
-//! use cloudinary::upload::{Source, Upload, options::OptionalParameters};
+//! use cloudinary::upload::{Source, Upload, OptionalParameters};
 //!
 //! let image_url = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png";
 //! let options = BTreeSet::from([OptionalParameters::PublicId("1x1.png".to_string())]);
@@ -40,7 +40,7 @@
 //!
 //! ```rust
 //! use std::collections::BTreeSet;
-//! use cloudinary::upload::{Source, Upload, options::OptionalParameters};
+//! use cloudinary::upload::{Source, Upload, OptionalParameters};
 //!
 //! let data_url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
 //! let options = BTreeSet::from([OptionalParameters::PublicId("1x1.png".to_string())]);

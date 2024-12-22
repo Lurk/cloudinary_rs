@@ -4,7 +4,7 @@ mod background_removal;
 mod categorizations;
 mod delivery_type;
 pub mod moderation;
-pub mod options;
+mod options;
 mod raw_convert;
 mod resource_type;
 mod responsive_breakpoints;
@@ -12,7 +12,7 @@ pub mod result;
 
 use anyhow::{Context, Result};
 use chrono::Utc;
-use options::OptionalParameters;
+pub use options::OptionalParameters;
 use reqwest::multipart::{Form, Part};
 use reqwest::{Body, Client, Url};
 use result::DestroyResult;
@@ -49,7 +49,7 @@ impl Upload {
     ///
     /// ```rust
     /// use std::collections::BTreeSet;
-    /// use cloudinary::upload::{Source, Upload, options::OptionalParameters};
+    /// use cloudinary::upload::{Source, Upload, OptionalParameters};
     ///
     /// let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
     /// let options = BTreeSet::from([OptionalParameters::PublicId("file.jpg".to_string())]);
@@ -114,7 +114,7 @@ impl Upload {
         Ok(json)
     }
 
-    pub fn build_form(&self, options: &BTreeSet<OptionalParameters>) -> Form {
+    fn build_form(&self, options: &BTreeSet<OptionalParameters>) -> Form {
         let mut form = Form::new();
         let mut hasher = Sha1::new();
         let timestamp = Utc::now().timestamp_millis().to_string();
