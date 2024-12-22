@@ -17,6 +17,7 @@ use super::{
 
 /// Image upload optional parameters from
 /// [cloudinary docs](https://cloudinary.com/documentation/image_upload_api_reference#upload_optional_parameters)
+#[derive(Debug)]
 pub enum OptionalParameters {
     /// The identifier that's used for accessing and delivering the uploaded asset.
     ///
@@ -697,7 +698,9 @@ impl Ord for OptionalParameters {
 #[cfg(test)]
 mod tests {
     use std::{
+        cmp::Ordering,
         collections::{HashMap, HashSet},
+        hash::{DefaultHasher, Hash, Hasher},
         str::FromStr,
     };
 
@@ -1298,5 +1301,48 @@ mod tests {
             OptionalParameters::RawConvert(RawConvert::ExtractText).get_pair(),
             ("raw_convert".to_string(), "extract_text".to_string())
         )
+    }
+
+    #[test]
+    fn eq() {
+        assert_eq!(
+            OptionalParameters::PublicId("one".to_string()),
+            OptionalParameters::PublicId("two".to_string())
+        )
+    }
+
+    #[test]
+    fn cmp_eq() {
+        assert_eq!(
+            OptionalParameters::PublicId("one".to_string())
+                .cmp(&OptionalParameters::PublicId("two".to_string())),
+            Ordering::Equal
+        );
+    }
+
+    #[test]
+    fn cmp_lt() {
+        assert_eq!(
+            OptionalParameters::PublicId("1".to_string())
+                .cmp(&OptionalParameters::ReturnDeleteToken(true)),
+            Ordering::Less
+        );
+    }
+
+    #[test]
+    fn cmp_gt() {
+        assert_eq!(
+            OptionalParameters::PublicId("1".to_string()).cmp(&OptionalParameters::Async(true)),
+            Ordering::Greater
+        );
+    }
+
+    #[test]
+    fn hash() {
+        let mut h1 = DefaultHasher::new();
+        let mut h2 = DefaultHasher::new();
+        OptionalParameters::PublicId("1".to_string()).hash(&mut h1);
+        "public_id".hash(&mut h2);
+        assert_eq!(h1.finish(), h2.finish());
     }
 }
