@@ -34,8 +34,8 @@ pub enum OptionalParameters {
     ///     - forward slashes `/`
     ///     - underscores `_`
     ///     - hyphens `-`
-    /// - [Public ID](Options::PublicId) values cannot begin or end with a space or forward slash `/`. Additionally,
-    ///     they cannot include the following characters: `? & # \ % < > +`
+    /// - [Public ID](OptionalParameters::PublicId) values cannot begin or end with a space or forward slash `/`.
+    ///     Additionally, they cannot include the following characters: `? & # \ % < > +`
     PublicId(String),
     /// A string or path that's automatically prepended to the public_id with a forward slash. The
     /// value can contain the same characters as the public_id including additional forward
@@ -65,7 +65,7 @@ pub enum OptionalParameters {
     DisplayName(String),
     /// The folder where the asset is placed within the Cloudinary repository. This value does not impact the asset’s
     /// public ID path (unless the
-    /// [use_asset_folder_as_public_id_prefix](Options::UseAssetFolderAsPublicIdPrefix) option is applied).
+    /// [use_asset_folder_as_public_id_prefix](OptionalParameters::UseAssetFolderAsPublicIdPrefix) option is applied).
     ///
     /// Default: If not specified, the uploaded asset will be located in the root of your product environment asset
     /// repository, even if the public ID value includes slashes.
@@ -80,8 +80,8 @@ pub enum OptionalParameters {
     /// can later be moved to a completely different asset folder hierarchy without impacting the
     /// public ID. This option only ensures path matching for the initial upload.
     ///
-    /// Relevant only when [public_id_prefix](Options::PublicIdPrefix) (or [folder](Options::AssetFolder)) has not been
-    /// separately specified.
+    /// Relevant only when [public_id_prefix](OptionalParameters::PublicIdPrefix) (or
+    /// [folder](OptionalParameters::AssetFolder)) has not beenseparately specified.
     ///
     /// Default: false
     ///
@@ -300,7 +300,7 @@ pub enum OptionalParameters {
     ///
     /// Use together with the detection parameter for:
     /// - [Cloudinary AI Content Analysis](https://cloudinary.com/documentation/cloudinary_ai_content_analysis_addon#automatic_image_tagging)
-    /// - []Amazon Rekognition Celebrity Detection](https://cloudinary.com/documentation/aws_rekognition_celebrity_and_face_detection_addon#automatically_adding_tags_to_images)
+    /// - [Amazon Rekognition Celebrity Detection](https://cloudinary.com/documentation/aws_rekognition_celebrity_and_face_detection_addon#automatically_adding_tags_to_images)
     ///
     /// Use together with the categorization parameter for:
     ///
@@ -325,7 +325,7 @@ pub enum OptionalParameters {
     ///
     /// Set to:
     ///
-    /// - <content-aware model>_[<version>] (e.g. coco_v2) to return a list of detected content using the
+    /// - \<content-aware model>_[\<version>] (e.g. coco_v2) to return a list of detected content using the
     ///     [Cloudinary AI Content Analysis add-on](https://cloudinary.com/documentation/cloudinary_ai_content_analysis_addon#automatic_image_tagging).
     ///     Can be used together with the auto_tagging parameter to apply tags automatically.
     /// - `captioning` to analyze an image and suggest a caption based on the image's contents.
@@ -336,6 +336,7 @@ pub enum OptionalParameters {
     ///     tags automatically.
     ///
     /// Relevant for images only.
+    /// TODO: Better type
     Detection(String),
     /// Whether to trigger automatic generation of video chapters. Chapters will be generated and saved as a .vtt file
     /// with -chapters appended to the public ID of the video. You can enable chapters as part of the
