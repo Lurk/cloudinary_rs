@@ -75,7 +75,7 @@ pub struct ImageMetadata {
     pub dpi: Option<String>,
 }
 
-/// https://cloudinary.com/documentation/image_upload_api_reference#upload_response
+/// <https://cloudinary.com/documentation/image_upload_api_reference#upload_response>
 #[derive(Clone, Deserialize, Debug)]
 pub struct ResponseWithImageMetadata {
     pub asset_id: String,
