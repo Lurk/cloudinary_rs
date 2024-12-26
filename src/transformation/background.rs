@@ -14,7 +14,7 @@ pub enum AutoModes {
     PredominantContrast,
 
     /// To automatically apply a gradient fade to the background with multiple colors:
-
+    ///
     /// Bases the gradient fade effect on the predominant colors in the image.
     PredominantGradient,
     /// Bases the gradient fade effect on the colors that contrast the predominant colors in the image.

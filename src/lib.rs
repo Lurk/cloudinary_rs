@@ -16,30 +16,36 @@
 //! ## Local file
 //!
 //! ```rust
-//! use cloudinary::upload::{UploadOptions, Source, Upload};
-//! let options = UploadOptions::new().set_public_id("file.jpg".to_string());
+//! use std::collections::BTreeSet;
+//! use cloudinary::upload::{Source, Upload, OptionalParameters};
+//!
 //! let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
+//! let options = BTreeSet::from([OptionalParameters::PublicId("file.jpg".to_string())]);
 //! let result = upload.image(Source::Path("./image.jpg".into()), &options);
 //! ```
 //!
 //! ## Remote file
 //!
 //! ```rust
-//! use cloudinary::upload::{UploadOptions, Source, Upload};
+//! use std::collections::BTreeSet;
+//! use cloudinary::upload::{Source, Upload, OptionalParameters};
+//!
 //! let image_url = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png";
-//! let options = UploadOptions::new().set_public_id("1x1.png".to_string());
+//! let options = BTreeSet::from([OptionalParameters::PublicId("1x1.png".to_string())]);
 //! let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
-//! let result = upload.image(Source::Url(image_url.try_into().unwrap()), &options);
+//! let result = upload.image(Source::Path("./image.jpg".into()), &options);
 //! ```
 //!
 //! ## Data url
 //!
 //! ```rust
-//! use cloudinary::upload::{UploadOptions, Source, Upload};
+//! use std::collections::BTreeSet;
+//! use cloudinary::upload::{Source, Upload, OptionalParameters};
+//!
 //! let data_url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
-//! let options = UploadOptions::new().set_public_id("1x1.png".to_string());
+//! let options = BTreeSet::from([OptionalParameters::PublicId("1x1.png".to_string())]);
 //! let upload = Upload::new("api_key".to_string(), "cloud_name".to_string(), "api_secret".to_string() );
-//! let result = upload.image(Source::DataUrl(data_url.into()), &options);
+//! let result = upload.image(Source::DataUrl(data_url.to_string()), &options);
 //! ```
 //!
 //! # Destroy an asset by publicID

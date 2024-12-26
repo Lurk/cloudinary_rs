@@ -2,9 +2,13 @@ use core::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Categorizations {
+    /// [Google Automatic Video Tagging](https://cloudinary.com/documentation/google_automatic_video_tagging_addon#adding_resource_tags_to_videos)
     Google,
+    /// [Google Auto Tagging](https://cloudinary.com/documentation/google_auto_tagging_addon#adding_resource_tags_to_images)
     GoogleVideo,
+    /// [Imagga Auto Tagging](https://cloudinary.com/documentation/imagga_auto_tagging_addon#adding_resource_tags_to_images)
     Imagga,
+    /// [Amazon Rekognition Auto Tagging](https://cloudinary.com/documentation/aws_rekognition_auto_tagging_addon#automatically_adding_tags_to_images)
     AwsRek,
 }
 
