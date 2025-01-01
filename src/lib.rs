@@ -66,7 +66,7 @@
 //!
 //! ```rust
 //! use cloudinary::transformation::{
-//!     Transformations::Resize, resize_mode::ResizeMode::ScaleByWidth, Image, aspect_ratio::AspectRatio
+//!     Transformations::Resize, ResizeMode::ScaleByWidth, Image
 //! };
 //!
 //! let image = Image::new("test".into(), "path/name.png".into())
@@ -81,7 +81,7 @@
 //!
 //! ```rust
 //! use cloudinary::transformation::{
-//!    Transformations::Crop, crop_mode::CropMode::FillByWidth, Image, aspect_ratio::AspectRatio
+//!    Transformations::Crop, CropMode::FillByWidth, Image
 //! };
 //!
 //! let image = Image::new("test".into(), "path/name.png".into())
@@ -97,7 +97,7 @@
 //!
 //! ```rust
 //! use cloudinary::transformation::{
-//!   Transformations::Pad, pad_mode::PadMode::PadByWidth, Image, aspect_ratio::AspectRatio
+//!   Transformations::Pad, PadMode::PadByWidth, Image
 //! };
 //!
 //! let image = Image::new("test".into(), "path/name.png".into())

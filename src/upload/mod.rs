@@ -12,7 +12,6 @@ pub mod result;
 
 use anyhow::{Context, Result};
 use chrono::Utc;
-pub use options::OptionalParameters;
 use reqwest::multipart::{Form, Part};
 use reqwest::{Body, Client, Url};
 use result::DestroyResult;
@@ -22,7 +21,13 @@ use std::path::PathBuf;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-use self::result::UploadResult;
+pub use self::result::UploadResult;
+pub use self::{
+    access_mode::AccessModes, allowed_headers::AllowedHeaders,
+    background_removal::BackgroundRemoval, categorizations::Categorizations,
+    delivery_type::DeliveryType, moderation::Moderation, options::OptionalParameters,
+    resource_type::ResourceTypes, responsive_breakpoints::ResponsiveBreakpoints,
+};
 
 pub struct Upload {
     cloud_name: String,

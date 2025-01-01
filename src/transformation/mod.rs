@@ -14,7 +14,7 @@ use std::{
 
 use url::Url;
 
-use self::{crop_mode::CropMode, pad_mode::PadMode, resize_mode::ResizeMode};
+pub use self::{crop_mode::CropMode, pad_mode::PadMode, resize_mode::ResizeMode};
 
 #[non_exhaustive]
 #[derive(Debug, Clone)]
