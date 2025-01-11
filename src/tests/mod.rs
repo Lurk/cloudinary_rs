@@ -3,8 +3,8 @@ use pretty_assertions::assert_eq;
 use std::{collections::BTreeSet, env::var};
 
 use crate::upload::{
-    result::UploadResult::{Error, Response, ResponseWithImageMetadata},
     OptionalParameters, Source, Upload,
+    UploadResult::{Error, Response, ResponseWithImageMetadata},
 };
 
 fn env() -> (String, String, String) {

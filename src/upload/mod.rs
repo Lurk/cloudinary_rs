@@ -26,7 +26,8 @@ pub use self::{
     access_mode::AccessModes, allowed_headers::AllowedHeaders,
     background_removal::BackgroundRemoval, categorizations::Categorizations,
     delivery_type::DeliveryType, moderation::Moderation, options::OptionalParameters,
-    resource_type::ResourceTypes, responsive_breakpoints::ResponsiveBreakpoints,
+    raw_convert::RawConvert, resource_type::ResourceTypes,
+    responsive_breakpoints::ResponsiveBreakpoints,
 };
 
 pub struct Upload {
