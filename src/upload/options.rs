@@ -712,11 +712,8 @@ mod tests {
     use crate::{
         transformation::{crop_mode::CropMode, pad_mode::PadMode, Transformations},
         upload::{
-            access_mode::AccessModes, allowed_headers::AllowedHeaders,
-            background_removal::BackgroundRemoval, categorizations::Categorizations,
-            delivery_type::DeliveryType, moderation::Moderation, options::OptionalParameters,
-            raw_convert::RawConvert, resource_type::ResourceTypes,
-            responsive_breakpoints::ResponsiveBreakpoints,
+            AccessModes, AllowedHeaders, BackgroundRemoval, Categorizations, DeliveryType,
+            Moderation, OptionalParameters, RawConvert, ResourceTypes, ResponsiveBreakpoints,
         },
     };
 
