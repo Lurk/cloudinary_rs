@@ -26,6 +26,8 @@ url = "2.5.2"
 dotenv = "0.15.0"
 pretty_assertions = "1.4.1"
 
-# for minimal-versions
+# Minimal-versions test failing due to openssl being out of date.
+# Force more recent version of openssl for every configuration it is required.
+# ref: https://github.com/sfackler/rust-openssl/issues/1724
 [target.'cfg(any())'.dependencies]
-openssl = { version = "0.10.59", optional = true } # needed to allow foo to build with -Zminimal-versions
+openssl = { version = "0.10.75", optional = true }
