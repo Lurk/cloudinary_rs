@@ -83,8 +83,15 @@ impl Upload {
             .send()
             .await
             .context(format!("upload to {}", url))?;
+        let status = response.status();
         let text = response.text().await?;
-        let json = serde_json::from_str(&text).context(format!("failed to parse:\n\n {}", text))?;
+        if status != 200 {
+            return Err(anyhow::anyhow!("({}) <- {}\n\n{}", status, url, text));
+        }
+
+        let json = serde_json::from_str(&text)
+            .context(format!("({}) <- {}", status, url))
+            .context(format!("failed to parse:\n\n {}", text))?;
         Ok(json)
     }
 
