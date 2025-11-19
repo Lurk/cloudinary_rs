@@ -11,7 +11,7 @@ repository = "https://github.com/Lurk/cloudinary_rs"
 
 [dependencies]
 anyhow = "1.0.100"
-chrono = "0.4.38"
+chrono = "0.4.42"
 itertools = "0.13.0"
 mime = "0.3.17"
 reqwest = { version = "0.12.24", features = [
