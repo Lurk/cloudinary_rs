@@ -79,7 +79,7 @@ jobs:
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
     strategy:
       matrix:
-        msrv: [1.65.0] # due to let-else   
+        msrv: [1.83.0] # due to icu_collections@2.1.1
     name: ubuntu / ${{ matrix.msrv }}
     steps:
       - uses: actions/checkout@v4
