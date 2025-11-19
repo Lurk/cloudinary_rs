@@ -80,7 +80,7 @@ jobs:
     strategy:
       matrix:
         msrv: [1.65.0] # due to let-else   
-        name: ubuntu / ${{ matrix.msrv }}
+    name: ubuntu / ${{ matrix.msrv }}
     steps:
       - uses: actions/checkout@v4
         with:
