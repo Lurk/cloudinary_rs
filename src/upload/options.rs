@@ -27,7 +27,7 @@ pub enum OptionalParameters {
     /// **NOTE:**
     ///
     /// - The public ID value for images and videos should not include a file extension. Include
-    ///     the file extension for raw files only.
+    ///   the file extension for raw files only.
     /// - Can be up to 255 characters, including:
     ///     - non-English characters
     ///     - periods `.`
@@ -35,7 +35,7 @@ pub enum OptionalParameters {
     ///     - underscores `_`
     ///     - hyphens `-`
     /// - [Public ID](OptionalParameters::PublicId) values cannot begin or end with a space or forward slash `/`.
-    ///     Additionally, they cannot include the following characters: `? & # \ % < > +`
+    ///   Additionally, they cannot include the following characters: `? & # \ % < > +`
     PublicId(String),
     /// A string or path that's automatically prepended to the public_id with a forward slash. The
     /// value can contain the same characters as the public_id including additional forward
@@ -159,11 +159,11 @@ pub enum OptionalParameters {
     /// Possible values for each access type:
     ///
     /// - token requires either Token-based access or Cookie-based access for accessing the asset.
-    ///     For example: access_type: "token"
+    ///   For example: access_type: "token"
     /// - anonymous allows public access to the asset. The anonymous access type can optionally include start and/or
-    ///     end dates (in ISO 8601 format) that define when the asset is publicly available. Note that you can only
-    ///     include a single 'anonymous' access type.
-    ///     For example: `access_type: "anonymous", start: "2017-12-15T12:00Z", end: "2018-01-20T12:00Z"`
+    ///   end dates (in ISO 8601 format) that define when the asset is publicly available. Note that you can only
+    ///   include a single 'anonymous' access type.
+    ///   For example: `access_type: "anonymous", start: "2017-12-15T12:00Z", end: "2018-01-20T12:00Z"`
     AccessControl(String),
     /// Allows the asset to behave as if it's of the authenticated 'type' (see above) while still using the default
     /// 'upload' type in delivery URLs. The asset can later be made public by changing its access_mode via the
@@ -275,7 +275,7 @@ pub enum OptionalParameters {
     ///
     /// - Returned metadata for images includes: PixelsPerUnitX, PixelsPerUnitY, PixelUnits, Colorspace, and DPI.
     /// - Returned metadata for audio and video includes: audio_codec, audio_bit_rate, audio_frequency, channels,
-    ///     channel_layout.
+    ///   channel_layout.
     /// - Additional metadata for video includes: pix_format, codec, level, profile, video_bit_rate, dar.
     ///
     /// (In .NET SDK, parameter name is Metadata.)
@@ -326,14 +326,14 @@ pub enum OptionalParameters {
     /// Set to:
     ///
     /// - \<content-aware model>_[\<version>] (e.g. coco_v2) to return a list of detected content using the
-    ///     [Cloudinary AI Content Analysis add-on](https://cloudinary.com/documentation/cloudinary_ai_content_analysis_addon#automatic_image_tagging).
-    ///     Can be used together with the auto_tagging parameter to apply tags automatically.
+    ///   [Cloudinary AI Content Analysis add-on](https://cloudinary.com/documentation/cloudinary_ai_content_analysis_addon#automatic_image_tagging).
+    ///   Can be used together with the auto_tagging parameter to apply tags automatically.
     /// - `captioning` to analyze an image and suggest a caption based on the image's contents.
     /// - `iqa` to analyze the quality of an image.
     /// - `adv_face` to return a list of facial attributes using the Advanced Facial Attribute Detection add-on.
     /// - `aws_rek_face` to return a list of detected celebrities and facial attributes using the Amazon Rekognition
-    ///     Celebrity Detection add-on. Can be used together with the `auto_tagging` parameter to apply
-    ///     tags automatically.
+    ///   Celebrity Detection add-on. Can be used together with the `auto_tagging` parameter to apply
+    ///   tags automatically.
     ///
     /// Relevant for images only.
     /// TODO: Better type
@@ -427,10 +427,10 @@ pub enum OptionalParameters {
     /// Automatically remove the background of an image using an add-on.
     ///
     /// - Set to cloudinary_ai to use the deep-learning based
-    ///     [Cloudinary AI Background Removal add-on](https://cloudinary.com/documentation/cloudinary_ai_background_removal_addon#removing_the_background_on_upload_update). NOTE: this feature has been superseded by
-    ///     [background removal on the fly](https://cloudinary.com/documentation/cloudinary_ai_background_removal_addon#removing_the_background_on_the_fly).
+    ///   [Cloudinary AI Background Removal add-on](https://cloudinary.com/documentation/cloudinary_ai_background_removal_addon#removing_the_background_on_upload_update). NOTE: this feature has been superseded by
+    ///   [background removal on the fly](https://cloudinary.com/documentation/cloudinary_ai_background_removal_addon#removing_the_background_on_the_fly).
     /// - Set to pixelz to use the human-powered
-    ///     [Pixelz Remove-The-Background Editing add-on service](https://cloudinary.com/documentation/remove_the_background_image_editing_addon).
+    ///   [Pixelz Remove-The-Background Editing add-on service](https://cloudinary.com/documentation/remove_the_background_image_editing_addon).
     ///
     /// Relevant for images only.
     ///
@@ -439,14 +439,14 @@ pub enum OptionalParameters {
     /// Generates a related file based on the uploaded file.
     ///
     /// - Set to `aspose` to automatically create a PDF or other image format from a `raw` Office document using the
-    ///     [Aspose Document Conversion add-on](https://cloudinary.com/documentation/aspose_document_conversion_addon).
-    ///     (Asynchronous)
+    ///   [Aspose Document Conversion add-on](https://cloudinary.com/documentation/aspose_document_conversion_addon).
+    ///   (Asynchronous)
     /// - Set to `google_speech` to instruct the
-    ///     [Google AI Video Transcription](https://cloudinary.com/documentation/google_ai_video_transcription_addon)
-    ///     add-on to generate an automatic transcript raw file from an uploaded video. (Asynchronous)
+    ///   [Google AI Video Transcription](https://cloudinary.com/documentation/google_ai_video_transcription_addon)
+    ///   add-on to generate an automatic transcript raw file from an uploaded video. (Asynchronous)
     /// - Set to `extract_text` to extract all the text from a PDF file and store it in a `raw` JSON file with a
-    ///     public ID in the format: `[pdf_public_id].extract_text.json`. The full URL of the generated JSON file is
-    ///     included in the API response. (Synchronous)
+    ///   public ID in the format: `[pdf_public_id].extract_text.json`. The full URL of the generated JSON file is
+    ///   included in the API response. (Synchronous)
     ///
     /// See also:
     /// [Converting raw files](https://cloudinary.com/documentation/upload_parameters#uploading_non_media_files_as_raw_files).

@@ -97,7 +97,7 @@ impl Image {
 
         match self.get_format() {
             Some(format) => {
-                let file_name = self.public_id.split('/').last().unwrap().to_string();
+                let file_name = self.public_id.split('/').next_back().unwrap().to_string();
 
                 let new_file_name = format!("{}.{}", file_name, format);
                 url.set_path(
