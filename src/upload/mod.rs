@@ -124,23 +124,26 @@ impl Upload {
         let mut form = Form::new();
         let mut hasher = Sha1::new();
         let timestamp = Utc::now().timestamp_millis().to_string();
+        let mut parts: Vec<String> = Vec::new();
 
         for option in options {
             let (key, value) = option.get_pair();
             if key != "resource_type" {
-                hasher.update(option.to_string());
-                hasher.update("&");
+                parts.push(option.to_string());
             };
 
             form = form.text(key, value);
         }
 
-        hasher.update(format!("timestamp={}{}", timestamp, self.api_secret));
+        parts.push(format!("timestamp={}", timestamp));
+        parts.sort();
+
+        let params_string = format!("{}{}", parts.join("&"), self.api_secret);
+        hasher.update(&params_string);
 
         form = form.text("signature", format!("{:x}", hasher.finalize()));
         form = form.text("api_key", self.api_key.clone());
         form = form.text("timestamp", timestamp.clone());
-
         form
     }
 }
