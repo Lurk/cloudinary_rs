@@ -120,6 +120,10 @@ impl Upload {
         Ok(json)
     }
 
+    /// Composes the request body for a multipart/form-data request.
+    ///
+    /// [`OptionalParameters`] are sorted alphabetically to comply with Cloudinary's authentication signature requirements.
+    /// See: <https://cloudinary.com/documentation/authentication_signatures>
     fn build_form(&self, options: &BTreeSet<OptionalParameters>) -> Form {
         let mut form = Form::new();
         let mut hasher = Sha1::new();

@@ -98,6 +98,38 @@ async fn test_image_upload_from_path() {
 }
 
 #[tokio::test]
+// Confirms OptionalParameters that alphabetically come after "timestamp" (e.g. use_filename_as_display_name)
+// are successfully sorted alphabetically to comply with Cloudinary's authentication signature requirements.
+// See: <https://cloudinary.com/documentation/authentication_signatures>
+async fn test_image_upload_with_options_out_of_alpha_order() {
+    let (api_key, cloud_name, api_secret) = env();
+    let cloudinary = Upload::new(api_key, cloud_name, api_secret);
+    let image_path = "./assets/1x1.png";
+    let public_id = "image_upload_from_path";
+
+    let res = cloudinary
+        .image(
+            Source::Path(image_path.into()),
+            &BTreeSet::from([
+                OptionalParameters::AssetFolder("test_images".to_string()),
+                OptionalParameters::UseFilenameAsDisplayName(true), // Parameter used to confirm successful signature building as use_filename_as_display_name should be after timestamp
+                OptionalParameters::PublicId(public_id.into()),
+                OptionalParameters::Overwrite(true),
+            ]),
+        )
+        .await
+        .unwrap();
+
+    match res {
+        Response(img) => assert_eq!(img.public_id, public_id),
+        Error(err) => panic!("{}", err.error.message),
+        _ => {
+            panic!("Since old account was used, only Response or Error variant is expected")
+        }
+    }
+}
+
+#[tokio::test]
 async fn test_destroy_non_existing_asset() {
     let (api_key, cloud_name, api_secret) = env();
     let cloudinary = Upload::new(api_key, cloud_name, api_secret);
@@ -183,6 +215,41 @@ async fn test_image_upload_from_new_acc_without_metadata() {
         .image(
             Source::DataUrl(image_base64.into()),
             &BTreeSet::from([
+                OptionalParameters::PublicId(public_id.into()),
+                OptionalParameters::Overwrite(true),
+                OptionalParameters::MediaMetadata(false),
+            ]),
+        )
+        .await
+        .unwrap();
+
+    match res {
+        Error(err) => panic!("{}", err.error.message),
+        ResponseWithImageMetadata(img) => assert_eq!(img.public_id, public_id),
+        _ => panic!("Since new account was used, only ResponseWithImageMetadata or Error variant is expected"),
+    }
+}
+
+#[tokio::test]
+// Confirms OptionalParameters that alphabetically come after "timestamp" (e.g. use_filename_as_display_name)
+// are successfully sorted alphabetically to comply with Cloudinary's authentication signature requirements.
+// See: <https://cloudinary.com/documentation/authentication_signatures>
+async fn test_image_upload_from_new_acc_with_options_out_of_alpha_order() {
+    dotenv().ok();
+    let api_key = var("CLOUDINARY_API_KEY_1").expect("environment variables not set");
+    let cloud_name = var("CLOUDINARY_CLOUD_NAME_1").expect("environment variables not set");
+    let api_secret = var("CLOUDINARY_API_SECRET_1").expect("environment variables not set");
+
+    let cloudinary = Upload::new(api_key, cloud_name, api_secret);
+    let image_path = "./assets/1x1.png";
+    let public_id = "image_upload_from_path";
+
+    let res = cloudinary
+        .image(
+            Source::Path(image_path.into()),
+            &BTreeSet::from([
+                OptionalParameters::AssetFolder("test_images".to_string()),
+                OptionalParameters::UseFilenameAsDisplayName(true), // Parameter used to confirm successful signature building as use_filename_as_display_name should be after timestamp
                 OptionalParameters::PublicId(public_id.into()),
                 OptionalParameters::Overwrite(true),
                 OptionalParameters::MediaMetadata(false),
