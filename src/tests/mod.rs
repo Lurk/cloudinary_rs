@@ -196,7 +196,9 @@ async fn test_image_upload_from_new_acc_with_metadata() {
     match res {
         Error(err) => panic!("{}", err.error.message),
         ResponseWithImageMetadata(img) => assert_eq!(img.public_id, public_id),
-        _ => panic!("Since new account was used, only ResponseWithImageMetadata or Error variant is expected"),
+        _ => panic!(
+            "Since new account was used, only ResponseWithImageMetadata or Error variant is expected"
+        ),
     }
 }
 
@@ -226,7 +228,9 @@ async fn test_image_upload_from_new_acc_without_metadata() {
     match res {
         Error(err) => panic!("{}", err.error.message),
         ResponseWithImageMetadata(img) => assert_eq!(img.public_id, public_id),
-        _ => panic!("Since new account was used, only ResponseWithImageMetadata or Error variant is expected"),
+        _ => panic!(
+            "Since new account was used, only ResponseWithImageMetadata or Error variant is expected"
+        ),
     }
 }
 
