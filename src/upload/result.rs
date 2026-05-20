@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use serde::{de, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, de};
 use std::{fmt::Display, str::FromStr};
 
 fn deserialize_from_str<'de, S, D>(deserializer: D) -> Result<S, D::Error>
