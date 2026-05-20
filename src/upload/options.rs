@@ -710,7 +710,7 @@ mod tests {
     use url::Url;
 
     use crate::{
-        transformation::{crop_mode::CropMode, pad_mode::PadMode, Transformations},
+        transformation::{Transformations, crop_mode::CropMode, pad_mode::PadMode},
         upload::{
             AccessModes, AllowedHeaders, BackgroundRemoval, Categorizations, DeliveryType,
             Moderation, OptionalParameters, RawConvert, ResourceTypes, ResponsiveBreakpoints,
