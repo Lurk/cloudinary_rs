@@ -300,7 +300,7 @@ CLOUDINARY_CLOUD_NAME_1=***
 
 ## Minimum supported Rust version
 
-MSRV: 1.83
+MSRV: 1.85
 
 
 License: MIT OR Apache-2.0
