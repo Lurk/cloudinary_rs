@@ -145,7 +145,10 @@ impl Upload {
         let params_string = format!("{}{}", parts.join("&"), self.api_secret);
         hasher.update(&params_string);
 
-        form = form.text("signature", format!("{:x}", hasher.finalize()));
+        form = form.text(
+            "signature",
+            base16ct::lower::encode_string(&hasher.finalize()),
+        );
         form = form.text("api_key", self.api_key.clone());
         form = form.text("timestamp", timestamp.clone());
         form
