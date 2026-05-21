@@ -10,7 +10,7 @@ repository = "https://github.com/Lurk/cloudinary_rs"
 
 
 [dependencies]
-anyhow = "1.0.100"
+anyhow = "1.0.102"
 chrono = "0.4.42"
 itertools = "0.14.0"
 mime = "0.3.17"
