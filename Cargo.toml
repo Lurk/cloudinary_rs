@@ -14,11 +14,11 @@ anyhow = "1.0.102"
 chrono = "0.4.44"
 itertools = "0.14.0"
 mime = "0.3.17"
-reqwest = { version = "0.12.24", features = [
+reqwest = { version = "0.13.3", features = [
 	"json",
 	"multipart",
 	"stream",
-	"rustls-tls",
+	"rustls",
 ] }
 serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = "1.0.145"
